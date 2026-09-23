@@ -1,5 +1,6 @@
 import express from 'express';
 import authRouter from './modules/auth/auth.router';
+import userRouter from './modules/user/user.router';
 
 const app = express();
 
@@ -10,5 +11,5 @@ app.get('/health', (req, res) => {
 });
 
 app.use('/api/auth', authRouter);
-
+app.use('/api/user', userRouter);
 export default app;
