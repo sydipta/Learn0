@@ -1,19 +1,18 @@
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import { createUser, loginUser } from './auth.service';
+import {signupSchema, loginSchema} from './auth.schema';
 
 export const signup = async (req: Request, res: Response) => {
   try {
-    const { email, name, password, program, branch, year, avatarUrl } = req.body;
-    const user = await createUser({
-      email,
-      name,
-      password,
-      program,
-      branch,
-      year,
-      avatarUrl
-    });
+    const parsed = signupSchema.safeParse(req.body);
+
+    if (!parsed.success) {
+      res.status(400).json({ message: 'Invalid input', errors: parsed.error.issues });
+      return;
+    }
+
+    const user = await createUser(parsed.data);
 
     const { password: _, ...userWithoutPassword } = user;
     res.status(201).json({ message: 'User created', user: userWithoutPassword });
@@ -25,9 +24,14 @@ export const signup = async (req: Request, res: Response) => {
 
 export const login = async (req: Request, res: Response) => {
   try {
-    const { email, password } = req.body;
+    const parsed = loginSchema.safeParse(req.body);
 
-    const user = await loginUser(email, password);
+    if(!parsed.success){
+      res.status(400).json({message: 'Invalid input', errors: parsed.error.issues});
+      return;
+    }
+
+    const user = await loginUser(parsed.data.email, parsed.data.password);
 
     const token = jwt.sign(
       { userId: user.id },
