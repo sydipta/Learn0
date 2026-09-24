@@ -24,6 +24,9 @@ model User {
 
   connectionsAsRequester Connection[] @relation("ConnectionsRequester")
   connectionsAsReceiver Connection[] @relation("ConnectionsReceiver")
+
+  reviewsGiven Review[] @relation("ReviewsGiven")
+  reviewsReceived Review[] @relation("ReviewsReceived")
 }
 
 model Post {
@@ -52,4 +55,20 @@ model Connection {
   requester User @relation("ConnectionsRequester", fields: [requesterId], references: [id])
   receiver User @relation("ConnectionsReceiver", fields: [receiverId], references: [id])
   post Post @relation(fields: [postId], references: [id])
+
+  reviews Review[]
+}
+
+model Review {
+  id String @id @default(uuid())
+  connectionId String
+  reviewerId String
+  revieweeId String
+  rating Int
+  comment String
+  createdAt DateTime @default(now())
+
+  connection Connection @relation(fields: [connectionId], references: [id])
+  reviewer User @relation("ReviewsGiven", fields: [reviewerId], references: [id])
+  reviewee User @relation("ReviewsReceived", fields: [revieweeId], references: [id])
 }
