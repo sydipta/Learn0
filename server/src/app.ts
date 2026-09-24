@@ -12,7 +12,7 @@ app.get('/health', (req, res) => {
 });
 
 app.use('/api/auth', authRouter);
-app.use('/api/user', userRouter);
+app.use('/api/users', userRouter);
 app.use('/api/posts', postRouter);
 
 export default app;
