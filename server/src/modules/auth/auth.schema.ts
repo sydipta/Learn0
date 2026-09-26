@@ -7,7 +7,7 @@ export const signupSchema = z.object({
     program: z.string().min(1),
     branch: z.string().min(1),
     year: z.number().int().min(1).max(5),
-    avatarUrl: z.string().url(),
+    avatarUrl: z.string().url().optional().or(z.literal('')),
 });
 
 export const loginSchema = z.object({

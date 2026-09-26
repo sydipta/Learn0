@@ -1,8 +1,18 @@
+import { Routes, Route, Navigate } from "react-router-dom";
+import LoginPage from './pages/LoginPage'
+import SignupPage from './pages/SignupPage'
+import FeedPage from './pages/FeedPage'
+
 function App() {
+  const token = localStorage.getItem('token')
+
   return (
-    <div className = "min-h-screen bg-gray-100 flex items-center justify-center">
-      <h1 className = "text-3xl font-bold text-purple-600">Campus Learn</h1>
-    </div>
+    <Routes>
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/signup" element={<SignupPage />} />
+      <Route path="/feed" element={token ? <FeedPage /> : <Navigate to="/login" />} />
+      <Route path="*" element={<Navigate to={token ? "/feed" : "/login"} />} />
+    </Routes>
   )
 }
 

@@ -16,6 +16,7 @@ export const createUser = async (data: {
         data: {
             ...data,
             password: hashedPassword,
+            avatarUrl: data.avatarUrl || 'https://api.dicebear.com/7.x/initials/svg?seed=' + data.name,
         }
      });
     return user;

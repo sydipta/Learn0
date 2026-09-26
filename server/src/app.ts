@@ -1,11 +1,14 @@
 import express from 'express';
+import cors from 'cors';
 import authRouter from './modules/auth/auth.router';
 import userRouter from './modules/user/user.router';
 import postRouter from './modules/post/post.router';
-import connectionRouter from './modules/connectoin/connection.router';
+import connectionRouter from './modules/connection/connection.router';
 import reviewRouter from './modules/review/review.router';
 
 const app = express();
+
+app.use(cors({ origin: 'http://localhost:5173' }));
 
 app.use(express.json());
 
