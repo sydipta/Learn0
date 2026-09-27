@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { signup } from '../api/auth'
+import { login, signup } from '../api/auth'
 
 export default function SignupPage() {
   const navigate = useNavigate()
@@ -26,7 +26,10 @@ export default function SignupPage() {
     setError('')
     try {
       await signup(form)
-      navigate('/login')
+      const data = await login({email: form.email, password: form.password})
+      localStorage.setItem('token', data.token)
+      localStorage.setItem('user', JSON.stringify(data.user))
+      window.location.href = '/feed'
     } catch (err: any) { 
       setError(err.response?.data?.message || 'Signup failed')
     } finally {

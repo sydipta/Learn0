@@ -4,11 +4,13 @@ export const createPost = async (userId: string, data:{
     type: string;
     subject: string;
     description: string;
+    tags? : string[];
 }) => {
     return await prisma.post.create({
         data: {
             ...data,
-            userId
+            userId,
+            tags: data.tags || [],
         },
     });
 };

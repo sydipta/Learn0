@@ -22,6 +22,8 @@ model User {
 
   posts Post[]
 
+  notifications Notification[]
+
   connectionsAsRequester Connection[] @relation("ConnectionsRequester")
   connectionsAsReceiver Connection[] @relation("ConnectionsReceiver")
 
@@ -35,6 +37,7 @@ model Post {
   type String //Learning req or Teaching offer
   subject String
   description String
+  tags String[]
   status String @default("active")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -57,6 +60,8 @@ model Connection {
   post Post @relation(fields: [postId], references: [id])
 
   reviews Review[]
+
+  session Session?
 }
 
 model Review {
@@ -71,4 +76,26 @@ model Review {
   connection Connection @relation(fields: [connectionId], references: [id])
   reviewer User @relation("ReviewsGiven", fields: [reviewerId], references: [id])
   reviewee User @relation("ReviewsReceived", fields: [revieweeId], references: [id])
+}
+
+model Session {
+  id String @id @default(uuid())
+  connectionId String @unique
+  scheduledAt DateTime
+  status String @default("Upcoming")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  connection Connection @relation(fields: [connectionId], references: [id])
+}
+
+model Notification {
+  id String @id @default(uuid())
+  userId String
+  type String
+  message String
+  read Boolean @default(false)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
 }
