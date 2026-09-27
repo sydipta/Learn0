@@ -8,7 +8,7 @@ export const createUser = async (data: {
     program: string;
     branch: string;
     year: number;
-    avatarUrl: string;
+    avatarUrl?: string;
 }) => {
     const hashedPassword = await bcrypt.hash(data.password, 10);
 
