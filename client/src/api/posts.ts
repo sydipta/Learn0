@@ -10,6 +10,7 @@ export const createPost = async (data: {
     type: string;
     subject: string;
     description: string;
+    tags?: string[];
 }) => {
     const response = await api.post<Post>('/posts', data);
     return response.data;

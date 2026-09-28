@@ -5,9 +5,14 @@ import type { Post } from '../types'
 import Sidebar from '../components/Sidebar'
 import { Bell, BookOpen, GraduationCap } from 'lucide-react'
 import StatsBar from '../components/StatsBar'
+import CreatePostModal from '../components/CreatePostModal'
 
 export default function FeedPage() {
   const [filter, setFilter] = useState<'all' | 'learning_request' | 'teaching_offer'>('all')
+
+  //Create Post Modal State
+  const [showCreatePost, setShowCreatePost] = useState(false)
+  const [createPostType, setCreatePostType] = useState<'learning_request' | 'teaching_offer'>('learning_request')
 
   const { data: posts, isLoading } = useQuery({
     queryKey: ['posts', filter],
@@ -47,10 +52,10 @@ export default function FeedPage() {
         </nav>
 
         {/* Main Content */}
-        <div className="flex gap-6 p-6 max-w-7xl mx-auto w-full">
+        <div className="flex gap-6 p-6 max-w-7xl mx-auto w-full h-[calc(100vh-57px)] overflow-hidden">
 
           {/* Center Feed */}
-          <div className="flex-1">
+          <div className="flex-1 flex flex-col overflow-hidden">
 
             {/* Hero Banner */}
             <div
@@ -86,57 +91,70 @@ export default function FeedPage() {
             </div>
 
             {/* Posts */}
-            {isLoading ? (
-              <p className="text-center text-gray-500">Loading...</p>
-            ) : posts?.length === 0 ? (
-              <p className="text-center text-gray-500">No posts yet.</p>
-            ) : (
-              <div className="space-y-4">
-                {posts?.map((post: Post) => (
-                  <div key={post.id} className="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
-                    <div className="flex justify-between items-start mb-2">
-                      <div className="flex items-center gap-3">
-                        <img
-                          src={`https://api.dicebear.com/7.x/initials/svg?seed=${post.user.name}`}
-                          alt={post.user.name}
-                          className="w-10 h-10 rounded-full"
-                        />
-                        <div>
-                          <p className="font-medium text-gray-800 text-sm">{post.user.name}</p>
-                          <p className="text-xs text-gray-500">Year {post.user.year} . {post.user.branch}</p>
+            <div className="overflow-y-auto flex-1 pr-2">
+              {isLoading ? (
+                <p className="text-center text-gray-500">Loading...</p>
+              ) : posts?.length === 0 ? (
+                <p className="text-center text-gray-500">No posts yet.</p>
+              ) : (
+                <div className="space-y-4">
+                  {posts?.map((post: Post) => (
+                    <div key={post.id} className="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
+                      <div className="flex justify-between items-start mb-2">
+                        <div className="flex items-center gap-3">
+                          <img
+                            src={`https://api.dicebear.com/7.x/initials/svg?seed=${post.user.name}`}
+                            alt={post.user.name}
+                            className="w-10 h-10 rounded-full"
+                          />
+                          <div>
+                            <p className="font-medium text-gray-800 text-sm">{post.user.name}</p>
+                            <p className="text-xs text-gray-500">Year {post.user.year} . {post.user.branch}</p>
+                          </div>
                         </div>
+                        <span className={`text-xs font-medium px-2 py-1 rounded-full ${post.type === 'learning_request' ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>
+                          {post.type === 'learning_request' ? 'Looking to Learn' : 'Can Teach'}
+                        </span>
                       </div>
-                      <span className={`text-xs font-medium px-2 py-1 rounded-full ${post.type === 'learning_request' ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>
-                        {post.type === 'learning_request' ? 'Looking to Learn' : 'Can Teach'}
-                      </span>
-                    </div>
 
-                    <h2 className="text-base font-semibold text-gray-800 mt-3">{post.subject}</h2>
-                    <p className="text-sm text-gray-600 mt-1">{post.description}</p>
+                      <h2 className="text-base font-semibold text-gray-800 mt-3">{post.subject}</h2>
+                      <p className="text-sm text-gray-600 mt-1">{post.description}</p>
 
-                    <div className="mt-4 flex justify-end">
-                      <button className="text-sm text-white px-4 py-2 bg-blue-600 rounded-lg hover:bg-blue-700">
-                        {post.type === 'learning_request' ? 'I can teach this' : 'I want to learn this'}
-                      </button>
+                      <div className="mt-4 flex justify-end">
+                        <button className="text-sm text-white px-4 py-2 bg-blue-600 rounded-lg hover:bg-blue-700">
+                          {post.type === 'learning_request' ? 'I can teach this' : 'I want to learn this'}
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            )}
+                  ))}
+                </div>
+              )}
+            </div>
+
           </div>
 
           {/* Right Sidebar */}
-          <div className="w-72 flex-shrink-0">
-            <button className="w-full bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700 mb-4 flex items-center justify-center gap-2">
-              <span className="text-lg">+</span>Create a New Post
+          <div className="w-72 flex-shrink-0 overflow-y-auto">
+            <button
+              onClick={() => { setCreatePostType('learning_request'); setShowCreatePost(true) }}
+              className="w-full bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700 mb-4 flex items-center justify-center gap-2">
+              + Create a New Post
             </button>
             <div className="grid grid-cols-2 gap-3 mb-4">
-              <div className="bg-red-50 border border-red-100 rounded-xl p-4 cursor-pointer hover:shadow-sm">
+
+              {/* I want to learn card */}
+              <div
+                onClick={() => { setCreatePostType('learning_request'); setShowCreatePost(true) }}
+                className="bg-red-50 border border-red-100 rounded-xl p-4 cursor-pointer hover:shadow-sm">
                 <BookOpen size={24} className="text-red-500 mb-2" />
                 <p className="font-semibold text-gray-800 text-sm">I want to Learn</p>
                 <p className="text-sm text-gray-500 mt-1">Get help from peears on a topic</p>
               </div>
-              <div className="bg-green-50 border border-green-100 rounded-xl p-4 cursor-pointer hover:shadow-sm">
+
+              {/* I want to teach card */}
+              <div
+                onClick={() => { setCreatePostType('teaching_offer'); setShowCreatePost(true) }}
+                className="bg-green-50 border border-green-100 rounded-xl p-4 cursor-pointer hover:shadow-sm">
                 <GraduationCap size={24} className="text-green-600 mb-2" />
                 <p className="font-semibold text-gray-800 text-sm">I want to Teach</p>
                 <p className="text-sm text-gray-500 mt-1">Share your knowledge and help others</p>
@@ -146,6 +164,12 @@ export default function FeedPage() {
 
         </div>
       </div>
+      {showCreatePost && (
+        <CreatePostModal
+          onClose={() => setShowCreatePost(false)}
+          defaultType={createPostType}
+        />
+      )}
     </div>
   )
 }
