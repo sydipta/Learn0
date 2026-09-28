@@ -6,6 +6,9 @@ import Sidebar from '../components/Sidebar'
 import { Bell, BookOpen, GraduationCap } from 'lucide-react'
 import StatsBar from '../components/StatsBar'
 import CreatePostModal from '../components/CreatePostModal'
+import ConnectConfirmModal from '../components/ConnectConfirmModal'
+
+
 
 export default function FeedPage() {
   const [filter, setFilter] = useState<'all' | 'learning_request' | 'teaching_offer'>('all')
@@ -13,6 +16,9 @@ export default function FeedPage() {
   //Create Post Modal State
   const [showCreatePost, setShowCreatePost] = useState(false)
   const [createPostType, setCreatePostType] = useState<'learning_request' | 'teaching_offer'>('learning_request')
+
+  //Connection Confirm Modal State
+  const [selectedPost, setSelectedPost] = useState<Post | null>(null)
 
   const { data: posts, isLoading } = useQuery({
     queryKey: ['posts', filter],
@@ -120,8 +126,11 @@ export default function FeedPage() {
                       <h2 className="text-base font-semibold text-gray-800 mt-3">{post.subject}</h2>
                       <p className="text-sm text-gray-600 mt-1">{post.description}</p>
 
+                      {/* Connection Confirm Modal */}
                       <div className="mt-4 flex justify-end">
-                        <button className="text-sm text-white px-4 py-2 bg-blue-600 rounded-lg hover:bg-blue-700">
+                        <button
+                          onClick={() => setSelectedPost(post)}
+                          className="text-sm text-white px-4 py-2 bg-blue-600 rounded-lg hover:bg-blue-700">
                           {post.type === 'learning_request' ? 'I can teach this' : 'I want to learn this'}
                         </button>
                       </div>
@@ -168,6 +177,13 @@ export default function FeedPage() {
         <CreatePostModal
           onClose={() => setShowCreatePost(false)}
           defaultType={createPostType}
+        />
+      )}
+
+      {selectedPost && (
+        <ConnectConfirmModal
+          post={selectedPost}
+          onClose={() => setSelectedPost(null)}
         />
       )}
     </div>
