@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { getPosts } from '../api/posts'
+import { getMyConnections } from '../api/connections'
 import type { Post } from '../types'
 import Sidebar from '../components/Sidebar'
 import { Bell, BookOpen, GraduationCap } from 'lucide-react'
@@ -23,6 +24,11 @@ export default function FeedPage() {
   const { data: posts, isLoading } = useQuery({
     queryKey: ['posts', filter],
     queryFn: () => getPosts(filter === 'all' ? undefined : filter),
+  })
+
+  const { data: connections } = useQuery({
+    queryKey: ['connections'],
+    queryFn: getMyConnections,
   })
 
   const user = JSON.parse(localStorage.getItem('user') || '{}')
@@ -128,11 +134,12 @@ export default function FeedPage() {
 
                       {/* Connection Confirm Modal */}
                       <div className="mt-4 flex justify-end">
-                        <button
+                        {post.userId !== user.id && !connections?.some(c => c.postId === post.id && c.requesterId === user.id) && (<button
                           onClick={() => setSelectedPost(post)}
                           className="text-sm text-white px-4 py-2 bg-blue-600 rounded-lg hover:bg-blue-700">
                           {post.type === 'learning_request' ? 'I can teach this' : 'I want to learn this'}
                         </button>
+                        )}
                       </div>
                     </div>
                   ))}
