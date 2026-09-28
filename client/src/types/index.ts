@@ -17,6 +17,7 @@ export interface Post {
     type: 'learning_request' | 'teaching_offer';
     subject: string;
     description: string;
+    tags: string[];
     status: string;
     createdAt: string;
     user: Pick<User, 'id' | 'name' | 'program' | 'branch' | 'year' | 'avatarUrl'>;

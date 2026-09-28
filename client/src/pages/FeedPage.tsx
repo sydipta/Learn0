@@ -133,12 +133,33 @@ export default function FeedPage() {
                       <p className="text-sm text-gray-600 mt-1">{post.description}</p>
 
                       {/* Connection Confirm Modal */}
-                      <div className="mt-4 flex justify-end">
-                        {post.userId !== user.id && !connections?.some(c => c.postId === post.id && c.requesterId === user.id) && (<button
-                          onClick={() => setSelectedPost(post)}
-                          className="text-sm text-white px-4 py-2 bg-blue-600 rounded-lg hover:bg-blue-700">
-                          {post.type === 'learning_request' ? 'I can teach this' : 'I want to learn this'}
-                        </button>
+                      <div className="mt-4 flex items-end justify-between gap-4">
+                        <div className="flex flex-wrap gap-2">
+                          {post.tags?.slice(0, 5).map(tag => (
+                            <span
+                              key={tag}
+                              className="px-2.5 py-1 rounded-full bg-blue-100 text-blue-800 text-xs font-medium border border-blue-200"
+                            >
+                              #{tag}
+                            </span>
+                          ))}
+                        </div>
+                        {post.userId !== user.id && (
+                          <button
+                            disabled={connections?.some(c => c.postId === post.id && c.requesterId === user.id)}
+                            onClick={() => setSelectedPost(post)}
+                            className={`text-sm px-4 py-2 rounded-lg ${
+                              connections?.some(c => c.postId === post.id && c.requesterId === user.id)
+                                ? 'bg-amber-100 text-amber-700 cursor-not-allowed'
+                                : 'bg-blue-600 text-white hover:bg-blue-700'
+                            }`}
+                          >
+                            {connections?.some(c => c.postId === post.id && c.requesterId === user.id)
+                              ? 'Requested already'
+                              : post.type === 'learning_request'
+                                ? 'I can teach this'
+                                : 'I want to learn this'}
+                          </button>
                         )}
                       </div>
                     </div>
