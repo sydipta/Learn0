@@ -1,0 +1,1 @@
+ALTER TABLE "Connection" DROP COLUMN "requestAttempts";

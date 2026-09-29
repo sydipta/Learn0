@@ -155,12 +155,16 @@ export default function FeedPage() {
                           <button
                             disabled={connections?.some(c => c.postId === post.id && c.requesterId === user.id)}
                             onClick={() => setSelectedPost(post)}
-                            className={`text-sm px-4 py-2 rounded-lg ${connections?.some(c => c.postId === post.id && c.requesterId === user.id)
+                            className={`text-sm px-4 py-2 rounded-lg ${connections?.some(c => c.postId === post.id && c.requesterId === user.id && c.status === 'rejected')
+                              ? 'bg-red-100 text-red-700 cursor-not-allowed'
+                              : connections?.some(c => c.postId === post.id && c.requesterId === user.id)
                               ? 'bg-amber-100 text-amber-700 cursor-not-allowed'
                               : 'bg-blue-600 text-white hover:bg-blue-700'
                               }`}
                           >
-                            {connections?.some(c => c.postId === post.id && c.requesterId === user.id)
+                            {connections?.some(c => c.postId === post.id && c.requesterId === user.id && c.status === 'rejected')
+                              ? 'Request rejected'
+                              : connections?.some(c => c.postId === post.id && c.requesterId === user.id)
                               ? 'Requested already'
                               : post.type === 'learning_request'
                                 ? 'I can teach this'

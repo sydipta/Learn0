@@ -3,7 +3,7 @@ import { getPosts, deletePost } from '../api/posts'
 import { getMyConnections } from '../api/connections'
 import type { Post } from '../types'
 import Sidebar from '../components/Sidebar'
-import { Bell, Trash2 } from 'lucide-react'
+import { Bell, Trash2, X } from 'lucide-react'
 import { useState } from 'react'
 import CreatePostModal from '../components/CreatePostModal'
 
@@ -14,6 +14,7 @@ export default function MyPostsPage() {
   const queryClient = useQueryClient()
   const [showCreatePost, setShowCreatePost] = useState(false)
   const [filter, setFilter] = useState<PostFilter>('all')
+  const [pendingDeletePost, setPendingDeletePost] = useState<Post | null>(null)
 
   const { data: allPosts, isLoading } = useQuery({
     queryKey: ['posts'],
@@ -120,6 +121,8 @@ export default function MyPostsPage() {
                       const postConnections = connections?.filter(item => item.postId === post.id) || []
                       const isCompleted = postConnections.some(item => item.session?.status.toLowerCase() === 'completed')
                       const didNotHappen = postConnections.some(item => item.session?.status.toLowerCase() === 'did_not_happen')
+                      const isConnected = postConnections.some(item => item.status === 'accepted')
+                      const hasPendingRequest = postConnections.some(item => item.status === 'pending')
 
                       if (isCompleted) {
                         return <span className="ml-4 text-sm font-medium text-blue-600">Completed</span>
@@ -129,13 +132,17 @@ export default function MyPostsPage() {
                         return <span className="ml-4 text-sm font-medium text-gray-600">Did not happen</span>
                       }
 
-                      if (postConnections.length > 0) {
+                      if (isConnected) {
                         return <span className="ml-4 text-sm font-medium text-green-600">Connected</span>
+                      }
+
+                      if (hasPendingRequest) {
+                        return <span className="ml-4 text-sm font-medium text-amber-600">Request pending</span>
                       }
 
                       return (
                         <button
-                          onClick={() => remove(post.id)}
+                          onClick={() => setPendingDeletePost(post)}
                           className="ml-4 text-gray-400 hover:text-red-500"
                           aria-label="Delete post"
                         >
@@ -155,6 +162,38 @@ export default function MyPostsPage() {
         <CreatePostModal
           onClose={() => setShowCreatePost(false)}
         />
+      )}
+      {pendingDeletePost && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl">
+            <div className="flex justify-between items-center mb-3">
+              <h2 className="text-lg font-bold text-gray-800">Delete post?</h2>
+              <button onClick={() => setPendingDeletePost(null)} aria-label="Close confirmation">
+                <X size={20} className="text-gray-500 hover:text-gray-800" />
+              </button>
+            </div>
+            <p className="text-sm text-gray-600 mb-5">
+              Are you sure you want to delete <span className="font-semibold">{pendingDeletePost.subject}</span>?
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setPendingDeletePost(null)}
+                className="flex-1 py-2 rounded-lg border border-gray-300 text-sm text-gray-600 hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  remove(pendingDeletePost.id)
+                  setPendingDeletePost(null)
+                }}
+                className="flex-1 py-2 rounded-lg bg-red-600 text-white text-sm font-medium hover:bg-red-700"
+              >
+                Delete post
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )

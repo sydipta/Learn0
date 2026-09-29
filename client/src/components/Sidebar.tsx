@@ -1,4 +1,6 @@
 import { NavLink, useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { getMyConnections } from '../api/connections';
 import { Home, FileText, Inbox, Users, Bell, User, Settings, LogOut } from 'lucide-react';
 
 const NavItems = [
@@ -13,6 +15,15 @@ const NavItems = [
 
 export default function Sidebar() {
     const navigate = useNavigate()
+    const user = JSON.parse(localStorage.getItem('user') || '{}')
+    const { data: connections } = useQuery({
+        queryKey: ['connections'],
+        queryFn: getMyConnections,
+        refetchInterval: 15000,
+    })
+    const incomingRequestCount = connections?.filter(connection =>
+        connection.receiverId === user.id && connection.status === 'pending'
+    ).length || 0
 
     const handleLogout = () => {
         localStorage.removeItem('token')
@@ -41,7 +52,12 @@ export default function Sidebar() {
                     }
                 >
                     <Icon size={18} />
-                    {label}
+                    <span className="flex-1">{label}</span>
+                    {label === 'Requests' && incomingRequestCount > 0 && (
+                        <span className="min-w-5 h-5 px-1.5 rounded-full bg-red-500 text-white text-[11px] font-semibold flex items-center justify-center">
+                            {incomingRequestCount > 99 ? '99+' : incomingRequestCount}
+                        </span>
+                    )}
                 </NavLink>
                 ))}
             </nav>

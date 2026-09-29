@@ -1,0 +1,1 @@
+ALTER TABLE "Connection" ADD COLUMN "requestAttempts" INTEGER NOT NULL DEFAULT 1;

@@ -2,11 +2,17 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { getMyConnections, updateConnection } from '../api/connections'
 import type { Connection } from '../types'
 import Sidebar from '../components/Sidebar'
-import { Bell } from 'lucide-react'
+import { Bell, X } from 'lucide-react'
+import { useState } from 'react'
 
 export default function RequestsPage() {
   const queryClient = useQueryClient()
   const user = JSON.parse(localStorage.getItem('user') || '{}')
+  const [pendingResponse, setPendingResponse] = useState<{
+    id: string
+    status: 'accepted' | 'rejected'
+    action: string
+  } | null>(null)
 
   const { data: connections, isLoading } = useQuery({
     queryKey: ['connections'],
@@ -62,13 +68,13 @@ export default function RequestsPage() {
                   </div>
                   <div className="flex gap-2">
                     <button
-                      onClick={() => respond({ id: c.id, status: 'rejected' })}
+                      onClick={() => setPendingResponse({ id: c.id, status: 'rejected', action: 'decline this connection request' })}
                       className="px-3 py-1.5 rounded-lg border border-gray-300 text-sm text-gray-600 hover:bg-gray-50"
                     >
                       Decline
                     </button>
                     <button
-                      onClick={() => respond({ id: c.id, status: 'accepted' })}
+                      onClick={() => setPendingResponse({ id: c.id, status: 'accepted', action: 'accept this connection request' })}
                       className="px-3 py-1.5 rounded-lg bg-blue-600 text-white text-sm hover:bg-blue-700"
                     >
                       Accept
@@ -108,6 +114,36 @@ export default function RequestsPage() {
           )}
         </div>
       </div>
+      {pendingResponse && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl">
+            <div className="flex justify-between items-center mb-3">
+              <h2 className="text-lg font-bold text-gray-800">Confirm request action</h2>
+              <button onClick={() => setPendingResponse(null)} aria-label="Close confirmation">
+                <X size={20} className="text-gray-500 hover:text-gray-800" />
+              </button>
+            </div>
+            <p className="text-sm text-gray-600 mb-5">Are you sure you want to {pendingResponse.action}?</p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setPendingResponse(null)}
+                className="flex-1 py-2 rounded-lg border border-gray-300 text-sm text-gray-600 hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  respond({ id: pendingResponse.id, status: pendingResponse.status })
+                  setPendingResponse(null)
+                }}
+                className="flex-1 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700"
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
