@@ -82,7 +82,7 @@ model Session {
   id String @id @default(uuid())
   connectionId String @unique
   scheduledAt DateTime
-  status String @default("Upcoming")
+  status String @default("upcoming")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

@@ -1,46 +1,54 @@
 import prisma from '../../db/prisma';
 
-export const createPost = async (userId: string, data:{
-    type: string;
-    subject: string;
-    description: string;
-    tags? : string[];
+export const createPost = async (userId: string, data: {
+  type: string;
+  subject: string;
+  description: string;
+  tags?: string[];
 }) => {
-    return await prisma.post.create({
-        data: {
-            ...data,
-            userId,
-            tags: data.tags || [],
-        },
-    });
+  return await prisma.post.create({
+    data: {
+      ...data,
+      userId,
+      tags: data.tags || [],
+    },
+  });
 };
 
-export const getPosts = async(type?: string) => {
-    return await prisma.post.findMany({
-        where: {
-            status: 'active',
-            ...(type && {type}),
+export const getPosts = async (type?: string) => {
+  return await prisma.post.findMany({
+    where: {
+      status: 'active',
+      ...(type && { type }),
+    },
+    include: {
+      user: {
+        select: {
+          id: true,
+          name: true,
+          program: true,
+          branch: true,
+          year: true,
+          avatarUrl: true,
         },
-        include: {
-            user: {
-                select:{
-                    id: true,
-                    name: true,
-                    program: true,
-                    branch: true,
-                    year: true,
-                    avatarUrl: true,
-                },
-            },
-        },
-        orderBy: {
-            createdAt: 'desc',
-        },
-    });
+      },
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+  });
 };
 
 export const deletePost = async (id: string, userId: string) => {
-    return await prisma.post.delete({
-        where: {id, userId},
-    });
+  const connections = await prisma.connection.count({
+    where: { postId: id },
+  });
+
+  if (connections > 0) {
+    throw new Error('Cannot delete a post that has active connections');
+  }
+
+  return await prisma.post.delete({
+    where: { id, userId },
+  });
 };

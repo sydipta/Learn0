@@ -1,6 +1,6 @@
 import { Response } from 'express';
 import { AuthRequest } from '../../middlewares/auth.middleware';
-import { createConnection, getMyConnections, updateConnectionStatus } from './connection.service';
+import { createConnection, deleteConnection, getMyConnections, updateConnectionStatus } from './connection.service';
 import { createConnectionSchema, updateConnectionSchema } from './connection.schema';
 
 export const createConnectionHandler = async (req: AuthRequest, res: Response) => {
@@ -43,3 +43,12 @@ export const updateConnectionHandler = async (req: AuthRequest, res: Response) =
         res.status(500).json({ message: 'Something went wrong' });
     }
 };
+
+    export const deleteConnectionHandler = async (req: AuthRequest, res: Response) => {
+        try {
+            const connection = await deleteConnection(req.params.id as string, req.userId!);
+            res.status(200).json(connection);
+        } catch (error: any) {
+            res.status(400).json({ message: error.message });
+        }
+    };

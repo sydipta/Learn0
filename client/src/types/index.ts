@@ -33,6 +33,11 @@ export interface Connection {
     requester: Pick<User, 'id' | 'name' | 'avatarUrl' | 'program' | 'branch' | 'year'>;
     receiver: Pick<User, 'id' | 'name' | 'avatarUrl' | 'program' | 'branch' | 'year'>;
     post: Pick<Post, 'id' | 'subject' | 'type'>;
+    session: {
+        id: string;
+        scheduledAt: string;
+        status: 'upcoming' | 'Upcoming' | 'completed' | 'did_not_happen';
+    } | null;
 }
 
 export interface Review {

@@ -18,3 +18,8 @@ export const updateConnection = async (id: string, status: 'accepted' | 'rejecte
     const response = await api.patch<Connection>(`/connections/${id}`, { status });
     return response.data;
 };
+
+export const deleteConnection = async (id: string) => {
+    const response = await api.delete<Connection>(`/connections/${id}`);
+    return response.data;
+};

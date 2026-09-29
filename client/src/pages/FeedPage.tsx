@@ -4,11 +4,12 @@ import { getPosts } from '../api/posts'
 import { getMyConnections } from '../api/connections'
 import type { Post } from '../types'
 import Sidebar from '../components/Sidebar'
-import { Bell, BookOpen, GraduationCap } from 'lucide-react'
+import { Bell, BookOpen, CalendarDays, Clock3, GraduationCap } from 'lucide-react'
 import StatsBar from '../components/StatsBar'
 import CreatePostModal from '../components/CreatePostModal'
 import ConnectConfirmModal from '../components/ConnectConfirmModal'
-
+import { getUpcomingSessions } from '../api/sessions'
+import type { Session } from '../api/sessions'
 
 
 export default function FeedPage() {
@@ -30,6 +31,12 @@ export default function FeedPage() {
     queryKey: ['connections'],
     queryFn: getMyConnections,
   })
+
+  const { data: sessions } = useQuery({
+    queryKey: ['sessions'],
+    queryFn: getUpcomingSessions,
+  })
+  console.log('sessions', sessions)
 
   const user = JSON.parse(localStorage.getItem('user') || '{}')
 
@@ -148,11 +155,10 @@ export default function FeedPage() {
                           <button
                             disabled={connections?.some(c => c.postId === post.id && c.requesterId === user.id)}
                             onClick={() => setSelectedPost(post)}
-                            className={`text-sm px-4 py-2 rounded-lg ${
-                              connections?.some(c => c.postId === post.id && c.requesterId === user.id)
-                                ? 'bg-amber-100 text-amber-700 cursor-not-allowed'
-                                : 'bg-blue-600 text-white hover:bg-blue-700'
-                            }`}
+                            className={`text-sm px-4 py-2 rounded-lg ${connections?.some(c => c.postId === post.id && c.requesterId === user.id)
+                              ? 'bg-amber-100 text-amber-700 cursor-not-allowed'
+                              : 'bg-blue-600 text-white hover:bg-blue-700'
+                              }`}
                           >
                             {connections?.some(c => c.postId === post.id && c.requesterId === user.id)
                               ? 'Requested already'
@@ -195,6 +201,51 @@ export default function FeedPage() {
                 <GraduationCap size={24} className="text-green-600 mb-2" />
                 <p className="font-semibold text-gray-800 text-sm">I want to Teach</p>
                 <p className="text-sm text-gray-500 mt-1">Share your knowledge and help others</p>
+              </div>
+
+              {/* Upcoming Reminders */}
+              <div className="col-span-2 bg-white rounded-xl border border-blue-100 p-4 mt-1 shadow-sm">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="rounded-lg bg-blue-600 p-2 text-white">
+                    <CalendarDays size={16} />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-800 text-sm">Upcoming Sessions</h3>
+                    <p className="text-xs text-gray-500">Your scheduled peer learning</p>
+                  </div>
+                </div>
+                {sessions?.length === 0 || !sessions ? (
+                  <div className="rounded-lg bg-gray-50 border border-dashed border-gray-200 px-3 py-4 text-center">
+                    <p className="text-xs text-gray-500">No upcoming sessions.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {sessions.map((s: Session) => {
+                      const user_id = user.id
+                      const other = s.connection.requester.id === user_id ? s.connection.receiver : s.connection.requester
+                      return (
+                        <div key={s.id} className="flex items-start gap-3 rounded-lg border border-blue-100 bg-blue-50/60 p-3">
+                          <img
+                            src={`https://api.dicebear.com/7.x/initials/svg?seed=${other.name}`}
+                            alt={other.name}
+                            className="w-9 h-9 rounded-full bg-white"
+                          />
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-start justify-between gap-2">
+                              <p className="text-xs font-semibold text-gray-800 truncate">Session with {other.name}</p>
+                              <Bell size={14} className="text-blue-600 flex-shrink-0" />
+                            </div>
+                            <p className="text-xs text-gray-600 mt-1 truncate">{s.connection.post.subject}</p>
+                            <p className="text-xs text-blue-700 font-medium mt-2 flex items-center gap-1">
+                              <Clock3 size={12} />
+                              {new Date(s.scheduledAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                            </p>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
               </div>
             </div>
           </div>

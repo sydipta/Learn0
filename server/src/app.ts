@@ -6,6 +6,7 @@ import postRouter from './modules/post/post.router';
 import connectionRouter from './modules/connection/connection.router';
 import reviewRouter from './modules/review/review.router';
 import statsRouter from './modules/stats/stats.router';
+import sessionRouter from './modules/session/session.router';
 
 const app = express();
 
@@ -23,5 +24,6 @@ app.use('/api/posts', postRouter);
 app.use('/api/connections', connectionRouter);
 app.use('/api/reviews', reviewRouter);
 app.use('/api/stats', statsRouter);
+app.use('/api/sessions', sessionRouter);
 
 export default app;

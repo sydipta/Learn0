@@ -44,7 +44,10 @@ export const getMyConnections = async (userId: string) => {
       },
       post: {
         select: { id: true, type: true, subject: true },
-      }
+      },
+      session: {
+        select: { id: true, scheduledAt: true, status: true },
+      },
     },
     orderBy: { createdAt: 'desc' }
   });
@@ -54,5 +57,34 @@ export const updateConnectionStatus = async (id: string, userId: string, status:
   return await prisma.connection.update({
     where: { id, receiverId: userId },
     data: { status },
+  });
+};
+
+export const deleteConnection = async (id: string, userId: string) => {
+  const connection = await prisma.connection.findFirst({
+    where: {
+      id,
+      OR: [
+        { requesterId: userId },
+        { receiverId: userId },
+      ],
+    },
+    include: { session: true },
+  });
+
+  if (!connection) {
+    throw new Error('Connection not found');
+  }
+
+  if (connection.session?.status !== 'did_not_happen') {
+    throw new Error('Only sessions marked as did not happen can be removed');
+  }
+
+  return await prisma.$transaction(async (transaction) => {
+    if (connection.session) {
+      await transaction.session.delete({ where: { id: connection.session.id } });
+    }
+
+    return transaction.connection.delete({ where: { id } });
   });
 };
