@@ -74,7 +74,7 @@ export default function FeedPage() {
         <div className="flex gap-6 p-6 max-w-7xl mx-auto w-full h-[calc(100vh-57px)] overflow-hidden">
 
           {/* Center Feed */}
-          <div className="flex-1 flex flex-col overflow-hidden">
+          <div className="flex-1 flex flex-col overflow-y-auto">
 
             {/* Hero Banner */}
             <div
@@ -98,7 +98,7 @@ export default function FeedPage() {
             </div>
 
             {/*Filter Tabs */}
-            <div className="flex gap-2 mb-6">
+            <div className="sticky top-0 z-10 flex gap-2 mb-6 bg-gray-50 py-3">
               {(['all', 'learning_request', 'teaching_offer'] as const).map(tab => (
                 <button
                   key={tab}
@@ -110,7 +110,7 @@ export default function FeedPage() {
             </div>
 
             {/* Posts */}
-            <div className="overflow-y-auto flex-1 pr-2">
+            <div className="pr-2">
               {isLoading ? (
                 <p className="text-center text-gray-500">Loading...</p>
               ) : posts?.length === 0 ? (
