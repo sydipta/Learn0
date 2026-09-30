@@ -74,6 +74,7 @@ export default function ConnectionsPage() {
                       <img src={`https://api.dicebear.com/7.x/initials/svg?seed=${other.name}`} className="w-10 h-10 rounded-full" />
                       <div>
                         <p className="font-medium text-gray-800 text-sm">{other.name}</p>
+                        {other.email && <p className="text-xs text-gray-500">{other.email}</p>}
                         <p className="text-xs text-gray-500">{other.program} · {other.branch} · Year {other.year}</p>
                         <p className="text-xs text-gray-500 mt-1">Topic: <span className="font-medium">{c.post.subject}</span></p>
                       </div>

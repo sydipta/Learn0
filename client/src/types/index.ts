@@ -30,8 +30,8 @@ export interface Connection {
     postId: string;
     status: 'pending' | 'accepted' | 'rejected';
     createdAt: string;
-    requester: Pick<User, 'id' | 'name' | 'avatarUrl' | 'program' | 'branch' | 'year'>;
-    receiver: Pick<User, 'id' | 'name' | 'avatarUrl' | 'program' | 'branch' | 'year'>;
+    requester: Pick<User, 'id' | 'name' | 'email' | 'avatarUrl' | 'program' | 'branch' | 'year'>;
+    receiver: Pick<User, 'id' | 'name' | 'email' | 'avatarUrl' | 'program' | 'branch' | 'year'>;
     post: Pick<Post, 'id' | 'subject' | 'type'>;
     session: {
         id: string;

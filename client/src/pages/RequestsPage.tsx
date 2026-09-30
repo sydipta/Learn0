@@ -5,6 +5,7 @@ import Sidebar from '../components/Sidebar'
 import Navbar from '../components/Navbar'
 import ConfirmModal from '../components/ConfirmModal'
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 
 export default function RequestsPage() {
   const queryClient = useQueryClient()
@@ -14,6 +15,7 @@ export default function RequestsPage() {
     status: 'accepted' | 'rejected'
     action: string
   } | null>(null)
+  const [acceptedMessage, setAcceptedMessage] = useState<string | null>(null)
 
   const { data: connections, isLoading } = useQuery({
     queryKey: ['connections'],
@@ -23,7 +25,25 @@ export default function RequestsPage() {
   const { mutate: respond } = useMutation({
     mutationFn: ({ id, status }: { id: string; status: 'accepted' | 'rejected' }) =>
       updateConnection(id, status),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['connections'] }),
+    onSuccess: async (_, variables) => {
+      await queryClient.invalidateQueries({ queryKey: ['connections'] })
+
+      if (variables.status !== 'accepted') return
+
+      try {
+        const refreshedConnections = await queryClient.fetchQuery({
+          queryKey: ['connections'],
+          queryFn: getMyConnections,
+        })
+        const acceptedConnection = refreshedConnections.find(connection => connection.id === variables.id)
+        const email = acceptedConnection?.requester.email
+        setAcceptedMessage(email
+          ? `You are now connected. Their email is ${email}. You can contact them to discuss the meeting and negotiate the details.`
+          : 'You are now connected. You can find their contact details in your Connections page.')
+      } catch {
+        setAcceptedMessage('You are now connected. You can find their contact details in your Connections page.')
+      }
+    },
   })
 
   const incoming = connections?.filter(c => c.receiverId === user.id && c.status === 'pending')
@@ -46,15 +66,21 @@ export default function RequestsPage() {
             <div className="space-y-3 mb-8">
               {incoming?.map((c: Connection) => (
                 <div key={c.id} className="bg-white rounded-xl border border-gray-200 p-4 flex justify-between items-center">
-                  <div className="flex items-center gap-3">
+                  <Link to={`/profile/${c.requester.id}`} className="flex items-center gap-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600">
                     <img src={`https://api.dicebear.com/7.x/initials/svg?seed=${c.requester.name}`} className="w-10 h-10 rounded-full" />
                     <div>
                       <p className="font-medium text-gray-800 text-sm">{c.requester.name}</p>
                       <p className="text-xs text-gray-500">{c.requester.program} · {c.requester.branch} · Year {c.requester.year}</p>
                       <p className="text-xs text-gray-500 mt-1">Post: <span className="font-medium">{c.post.subject}</span></p>
                     </div>
-                  </div>
+                  </Link>
                   <div className="flex gap-2">
+                    <Link
+                      to={`/profile/${c.requester.id}`}
+                      className="px-3 py-1.5 rounded-lg border border-blue-200 text-sm text-blue-700 hover:bg-blue-50"
+                    >
+                      View profile
+                    </Link>
                     <button
                       onClick={() => setPendingResponse({ id: c.id, status: 'rejected', action: 'decline this connection request' })}
                       className="px-3 py-1.5 rounded-lg border border-gray-300 text-sm text-gray-600 hover:bg-gray-50"
@@ -81,14 +107,14 @@ export default function RequestsPage() {
             <div className="space-y-3">
               {outgoing?.map((c: Connection) => (
                 <div key={c.id} className="bg-white rounded-xl border border-gray-200 p-4 flex justify-between items-center">
-                  <div className="flex items-center gap-3">
+                  <Link to={`/profile/${c.receiver.id}`} className="flex items-center gap-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600">
                     <img src={`https://api.dicebear.com/7.x/initials/svg?seed=${c.receiver.name}`} className="w-10 h-10 rounded-full" />
                     <div>
                       <p className="font-medium text-gray-800 text-sm">{c.receiver.name}</p>
                       <p className="text-xs text-gray-500">{c.receiver.program} · {c.receiver.branch} · Year {c.receiver.year}</p>
                       <p className="text-xs text-gray-500 mt-1">Post: <span className="font-medium">{c.post.subject}</span></p>
                     </div>
-                  </div>
+                  </Link>
                   <span className={`text-xs px-2 py-1 rounded-full font-medium ${c.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
                       c.status === 'accepted' ? 'bg-green-100 text-green-700' :
                         'bg-red-100 text-red-600'
@@ -104,12 +130,23 @@ export default function RequestsPage() {
       {pendingResponse && (
         <ConfirmModal
           title="Confirm request action"
-          message={`Are you sure you want to ${pendingResponse.action}?`}
+          message={pendingResponse.status === 'accepted'
+            ? `By accepting, you allow ${connections?.find(connection => connection.id === pendingResponse.id)?.requester.name || 'this user'} to see your contact email and connect with you about the session.`
+            : `Are you sure you want to ${pendingResponse.action}?`}
           onClose={() => setPendingResponse(null)}
           onConfirm={() => {
             respond({ id: pendingResponse.id, status: pendingResponse.status })
             setPendingResponse(null)
           }}
+        />
+      )}
+      {acceptedMessage && (
+        <ConfirmModal
+          title="Connection accepted"
+          message={acceptedMessage}
+          confirmLabel="Close"
+          onClose={() => setAcceptedMessage(null)}
+          onConfirm={() => setAcceptedMessage(null)}
         />
       )}
     </div>

@@ -14,8 +14,8 @@ export const createConnectionHandler = async (req: AuthRequest, res: Response) =
 
         const connection = await createConnection(req.userId!, parsed.data);
         res.status(201).json(connection);
-    } catch (error) {
-        res.status(500).json({ message: 'Something went wrong' });
+    } catch (error: any) {
+        res.status(400).json({ message: error.message });
     }
 };
 

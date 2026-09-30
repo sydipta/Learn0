@@ -37,10 +37,10 @@ export const getMyConnections = async (userId: string) => {
     },
     include: {
       requester: {
-        select: { id: true, name: true, avatarUrl: true, program: true, branch: true, year: true },
+        select: { id: true, name: true, email: true, avatarUrl: true, program: true, branch: true, year: true },
       },
       receiver: {
-        select: { id: true, name: true, avatarUrl: true, program: true, branch: true, year: true },
+        select: { id: true, name: true, email: true, avatarUrl: true, program: true, branch: true, year: true },
       },
       post: {
         select: { id: true, type: true, subject: true },
@@ -50,7 +50,13 @@ export const getMyConnections = async (userId: string) => {
       },
     },
     orderBy: { createdAt: 'desc' }
-  });
+  }).then(connections => connections.map(connection => {
+    if (connection.status === 'accepted') return connection;
+
+    const { email: _requesterEmail, ...requester } = connection.requester;
+    const { email: _receiverEmail, ...receiver } = connection.receiver;
+    return { ...connection, requester, receiver };
+  }));
 };
 
 export const updateConnectionStatus = async (id: string, userId: string, status: string) => {
