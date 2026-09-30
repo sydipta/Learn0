@@ -1,6 +1,7 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { getMyConnections } from '../api/connections';
+import { getNotifications } from '../api/notifications';
 import { Home, FileText, Inbox, Users, Bell, User, Settings, LogOut } from 'lucide-react';
 
 const NavItems = [
@@ -21,6 +22,11 @@ export default function Sidebar() {
         queryFn: getMyConnections,
         refetchInterval: 15000,
     })
+    const { data: notifications } = useQuery({
+        queryKey: ['notifications'],
+        queryFn: getNotifications,
+        refetchInterval: 60000,
+    })
     const incomingRequestCount = connections?.filter(connection =>
         connection.receiverId === user.id && connection.status === 'pending'
     ).length || 0
@@ -30,6 +36,7 @@ export default function Sidebar() {
             sessionStatus !== 'completed' &&
             sessionStatus !== 'did_not_happen'
     }).length || 0
+    const unreadNotificationCount = notifications?.filter(notification => !notification.read).length || 0
 
     const handleLogout = () => {
         localStorage.removeItem('token')
@@ -60,13 +67,18 @@ export default function Sidebar() {
                     <Icon size={18} />
                     <span className="flex-1">{label}</span>
                     {label === 'Requests' && incomingRequestCount > 0 && (
-                        <span className="min-w-5 h-5 px-1.5 rounded-full bg-red-500 text-white text-[11px] font-semibold flex items-center justify-center">
+                        <span className="min-w-5 h-5 px-1.5 rounded-full bg-teal-600 text-white text-[11px] font-semibold flex items-center justify-center">
                             {incomingRequestCount > 99 ? '99+' : incomingRequestCount}
                         </span>
                     )}
                     {label === 'Connections' && activeConnectionCount > 0 && (
-                        <span className="min-w-5 h-5 px-1.5 rounded-full bg-blue-600 text-white text-[11px] font-semibold flex items-center justify-center">
+                        <span className="min-w-5 h-5 px-1.5 rounded-full bg-emerald-600 text-white text-[11px] font-semibold flex items-center justify-center">
                             {activeConnectionCount > 99 ? '99+' : activeConnectionCount}
+                        </span>
+                    )}
+                    {label === 'Notifications' && unreadNotificationCount > 0 && (
+                        <span className="min-w-5 h-5 px-1.5 rounded-full bg-amber-500 text-white text-[11px] font-semibold flex items-center justify-center">
+                            {unreadNotificationCount > 99 ? '99+' : unreadNotificationCount}
                         </span>
                     )}
                 </NavLink>

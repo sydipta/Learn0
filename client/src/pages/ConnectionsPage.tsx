@@ -46,6 +46,7 @@ export default function ConnectionsPage() {
       queryClient.invalidateQueries({ queryKey: ['connections'] })
       queryClient.invalidateQueries({ queryKey: ['sessions'] })
       queryClient.invalidateQueries({ queryKey: ['posts'] })
+      queryClient.invalidateQueries({ queryKey: ['notifications'] })
       setPendingAction(null)
       if (variables.status === 'completed') {
         const connection = accepted?.find(c => c.session?.id === variables.sessionId)

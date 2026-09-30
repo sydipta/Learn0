@@ -1,4 +1,5 @@
 import prisma from '../../db/prisma';
+import { createNotificationIfMissing } from '../notification/notification.service';
 
 export const createConnection = async (requesterId: string, data: {
   postId: string;
@@ -19,12 +20,27 @@ export const createConnection = async (requesterId: string, data: {
     throw new Error('You have already sent a request for this post');
   }
 
-  return await prisma.connection.create({
+  const connection = await prisma.connection.create({
     data: {
       requesterId,
       ...data,
     },
   });
+
+  const [requester, post] = await Promise.all([
+    prisma.user.findUnique({ where: { id: requesterId }, select: { name: true } }),
+    prisma.post.findUnique({ where: { id: data.postId }, select: { subject: true } }),
+  ]);
+
+  if (requester && post) {
+    await createNotificationIfMissing({
+      userId: data.receiverId,
+      type: 'connection_request',
+      message: `${requester.name} sent you a connection request for ${post.subject}.`,
+    });
+  }
+
+  return connection;
 };
 
 export const getMyConnections = async (userId: string) => {
@@ -60,10 +76,29 @@ export const getMyConnections = async (userId: string) => {
 };
 
 export const updateConnectionStatus = async (id: string, userId: string, status: string) => {
-  return await prisma.connection.update({
+  const connection = await prisma.connection.findFirst({
+    where: { id, receiverId: userId },
+    include: {
+      requester: { select: { name: true } },
+      post: { select: { subject: true } },
+    },
+  });
+
+  if (!connection) throw new Error('Connection not found');
+
+  const updatedConnection = await prisma.connection.update({
     where: { id, receiverId: userId },
     data: { status },
   });
+
+  const action = status === 'accepted' ? 'accepted' : 'rejected';
+  await createNotificationIfMissing({
+    userId: connection.requesterId,
+    type: `connection_${action}`,
+    message: `${connection.requester.name}, your request for ${connection.post.subject} was ${action}.`,
+  });
+
+  return updatedConnection;
 };
 
 export const deleteConnection = async (id: string, userId: string) => {

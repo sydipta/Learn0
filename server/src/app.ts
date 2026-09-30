@@ -7,6 +7,7 @@ import connectionRouter from './modules/connection/connection.router';
 import reviewRouter from './modules/review/review.router';
 import statsRouter from './modules/stats/stats.router';
 import sessionRouter from './modules/session/session.router';
+import notificationRouter from './modules/notification/notification.router';
 
 const app = express();
 
@@ -25,5 +26,6 @@ app.use('/api/connections', connectionRouter);
 app.use('/api/reviews', reviewRouter);
 app.use('/api/stats', statsRouter);
 app.use('/api/sessions', sessionRouter);
+app.use('/api/notifications', notificationRouter);
 
 export default app;
