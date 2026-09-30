@@ -7,6 +7,7 @@ import Navbar from '../components/Navbar'
 import ConfirmModal from '../components/ConfirmModal'
 import { Trash2 } from 'lucide-react'
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import CreatePostModal from '../components/CreatePostModal'
 
 type PostFilter = 'all' | 'connected' | 'completed'
@@ -96,6 +97,18 @@ export default function MyPostsPage() {
                   <div className="flex justify-between items-start">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
+                        <Link
+                          to={`/profile/${post.user.id}`}
+                          title={`View ${post.user.name}'s profile`}
+                          className="flex items-center gap-2 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-600"
+                        >
+                          <img
+                            src={post.user.avatarUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${post.user.name}`}
+                            alt={`View ${post.user.name}'s profile`}
+                            className="w-7 h-7 rounded-full"
+                          />
+                          <span className="text-xs text-gray-600">{post.user.name}</span>
+                        </Link>
                         <span className={`text-xs px-2 py-1 rounded-full font-medium ${post.type === 'learning_request' ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>
                           {post.type === 'learning_request' ? 'Want to Learn' : 'Can Teach'}
                         </span>

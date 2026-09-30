@@ -1,18 +1,31 @@
 import { Response } from 'express';
 import { AuthRequest } from '../../middlewares/auth.middleware';
-import { getUserById, updateUser } from './user.service';
+import { getUserProfile, updateUser } from './user.service';
 import { updateUserSchema } from './user.schema';
 
 export const getProfile = async (req: AuthRequest, res: Response) => {
     try {
-        const user = await getUserById(req.userId!);
-        if(!user) {
+        const profile = await getUserProfile(req.userId!);
+        if(!profile) {
             res.status(404).json({ message: 'User not found' });
             return;
         }
 
-        const { password: _, ...userWithoutPassword } = user;
-        res.status(200).json({ user: userWithoutPassword });
+        res.status(200).json(profile);
+    } catch (error) {
+        res.status(500).json({ message: 'Something went wrong' });
+    }
+};
+
+export const getPublicProfile = async (req: AuthRequest, res: Response) => {
+    try {
+        const profile = await getUserProfile(req.params.userId as string);
+        if(!profile) {
+            res.status(404).json({ message: 'User not found' });
+            return;
+        }
+
+        res.status(200).json(profile);
     } catch (error) {
         res.status(500).json({ message: 'Something went wrong' });
     }

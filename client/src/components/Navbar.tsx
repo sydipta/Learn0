@@ -1,4 +1,5 @@
 import { Bell } from 'lucide-react'
+import { Link } from 'react-router-dom'
 
 interface Props {
   title?: string
@@ -25,7 +26,11 @@ export default function Navbar({ title, showSearch = false }: Props) {
         <button className="relative rounded-lg p-2 hover:bg-gray-100 transition-colors" aria-label="Notifications">
           <Bell size={20} className="text-gray-600" />
         </button>
-        <div className="flex items-center gap-2">
+        <Link
+          to="/profile"
+          title="Open your profile"
+          className="flex items-center gap-2 rounded-lg p-1.5 hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-600"
+        >
           <img
             src={`https://api.dicebear.com/7.x/initials/svg?seed=${user.name}`}
             alt={user.name}
@@ -35,7 +40,7 @@ export default function Navbar({ title, showSearch = false }: Props) {
             <p className="font-medium text-gray-800">{user.name}</p>
             <p className="text-gray-500 text-xs">Year {user.year} · {user.branch}</p>
           </div>
-        </div>
+        </Link>
       </div>
     </nav>
   )

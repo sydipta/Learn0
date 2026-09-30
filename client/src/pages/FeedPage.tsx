@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { getPosts } from '../api/posts'
 import { getMyConnections } from '../api/connections'
@@ -99,11 +100,17 @@ export default function FeedPage() {
                     <div key={post.id} className="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
                       <div className="flex justify-between items-start mb-2">
                         <div className="flex items-center gap-3">
-                          <img
-                            src={`https://api.dicebear.com/7.x/initials/svg?seed=${post.user.name}`}
-                            alt={post.user.name}
-                            className="w-10 h-10 rounded-full"
-                          />
+                          <Link
+                            to={`/profile/${post.user.id}`}
+                            title={`View ${post.user.name}'s profile`}
+                            className="rounded-full focus:outline-none focus:ring-2 focus:ring-blue-600"
+                          >
+                            <img
+                              src={post.user.avatarUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${post.user.name}`}
+                              alt={`View ${post.user.name}'s profile`}
+                              className="w-10 h-10 rounded-full"
+                            />
+                          </Link>
                           <div>
                             <p className="font-medium text-gray-800 text-sm">{post.user.name}</p>
                             <p className="text-xs text-gray-500">Year {post.user.year} . {post.user.branch}</p>

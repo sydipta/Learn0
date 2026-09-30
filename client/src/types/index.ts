@@ -50,3 +50,11 @@ export interface Review {
     createdAt: string;
     reviewer: Pick<User, 'id' | 'name' | 'avatarUrl'>;
 }
+
+export interface ProfileSummary {
+    acceptedConnections: number;
+    lessonsTaught: number;
+    lessonsLearned: number;
+    averageRating: number;
+    reviewCount: number;
+}
