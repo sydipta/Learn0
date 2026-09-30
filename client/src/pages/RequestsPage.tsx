@@ -2,7 +2,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { getMyConnections, updateConnection } from '../api/connections'
 import type { Connection } from '../types'
 import Sidebar from '../components/Sidebar'
-import { Bell, X } from 'lucide-react'
+import Navbar from '../components/Navbar'
+import ConfirmModal from '../components/ConfirmModal'
 import { useState } from 'react'
 
 export default function RequestsPage() {
@@ -32,20 +33,7 @@ export default function RequestsPage() {
     <div className="flex min-h-screen bg-gray-50">
       <Sidebar />
       <div className="flex-1 flex flex-col">
-        {/* Navbar */}
-        <nav className="bg-white border-b border-gray-200 px-6 py-3 flex justify-between items-center sticky top-0 z-10">
-          <h1 className="text-lg font-semibold text-gray-800">Requests</h1>
-          <div className="flex items-center gap-4">
-            <Bell size={20} className="text-gray-600" />
-            <div className="flex items-center gap-2">
-              <img src={`https://api.dicebear.com/7.x/initials/svg?seed=${user.name}`} className="w-8 h-8 rounded-full" />
-              <div className="text-sm">
-                <p className="font-medium text-gray-800">{user.name}</p>
-                <p className="text-gray-500 text-xs">Year {user.year} · {user.branch}</p>
-              </div>
-            </div>
-          </div>
-        </nav>
+        <Navbar title="Requests" />
 
         <div className="p-6 max-w-3xl mx-auto w-full">
           {/* Incoming Requests */}
@@ -115,34 +103,15 @@ export default function RequestsPage() {
         </div>
       </div>
       {pendingResponse && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl">
-            <div className="flex justify-between items-center mb-3">
-              <h2 className="text-lg font-bold text-gray-800">Confirm request action</h2>
-              <button onClick={() => setPendingResponse(null)} aria-label="Close confirmation">
-                <X size={20} className="text-gray-500 hover:text-gray-800" />
-              </button>
-            </div>
-            <p className="text-sm text-gray-600 mb-5">Are you sure you want to {pendingResponse.action}?</p>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setPendingResponse(null)}
-                className="flex-1 py-2 rounded-lg border border-gray-300 text-sm text-gray-600 hover:bg-gray-50"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => {
-                  respond({ id: pendingResponse.id, status: pendingResponse.status })
-                  setPendingResponse(null)
-                }}
-                className="flex-1 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700"
-              >
-                Confirm
-              </button>
-            </div>
-          </div>
-        </div>
+        <ConfirmModal
+          title="Confirm request action"
+          message={`Are you sure you want to ${pendingResponse.action}?`}
+          onClose={() => setPendingResponse(null)}
+          onConfirm={() => {
+            respond({ id: pendingResponse.id, status: pendingResponse.status })
+            setPendingResponse(null)
+          }}
+        />
       )}
     </div>
   )

@@ -3,7 +3,9 @@ import { getPosts, deletePost } from '../api/posts'
 import { getMyConnections } from '../api/connections'
 import type { Post } from '../types'
 import Sidebar from '../components/Sidebar'
-import { Bell, Trash2, X } from 'lucide-react'
+import Navbar from '../components/Navbar'
+import ConfirmModal from '../components/ConfirmModal'
+import { Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import CreatePostModal from '../components/CreatePostModal'
 
@@ -21,7 +23,7 @@ export default function MyPostsPage() {
     queryFn: () => getPosts(),
   })
 
-  const { data: connections } = useQuery({
+  const { data: connections, isLoading: isLoadingConnections } = useQuery({
     queryKey: ['connections'],
     queryFn: getMyConnections,
   })
@@ -30,9 +32,11 @@ export default function MyPostsPage() {
     ?.filter((p: Post) => p.userId === user.id)
     .filter((post: Post) => {
       const postConnections = connections?.filter(item => item.postId === post.id) || []
-      const hasCompletedSession = postConnections.some(item => item.session?.status.toLowerCase() === 'completed')
-      const hasConnectedSession = !hasCompletedSession && postConnections.some(item =>
-        item.status === 'accepted' && item.session?.status.toLowerCase() !== 'did_not_happen'
+      const hasCompletedSession = postConnections.some(item => item.session?.status?.toLowerCase() === 'completed')
+      const hasConnectedSession = postConnections.some(item =>
+        item.status === 'accepted' &&
+        item.session?.status?.toLowerCase() !== 'completed' &&
+        item.session?.status?.toLowerCase() !== 'did_not_happen'
       )
 
       if (filter === 'completed') return hasCompletedSession
@@ -53,20 +57,7 @@ export default function MyPostsPage() {
     <div className="flex min-h-screen bg-gray-50">
       <Sidebar />
       <div className="flex-1 flex flex-col">
-        {/* Navbar */}
-        <nav className="bg-white border-b border-gray-200 px-6 py-3 flex justify-between items-center sticky top-0 z-10">
-          <h1 className="text-lg font-semibold text-gray-800">My Posts</h1>
-          <div className="flex items-center gap-4">
-            <Bell size={20} className="text-gray-600" />
-            <div className="flex items-center gap-2">
-              <img src={`https://api.dicebear.com/7.x/initials/svg?seed=${user.name}`} className="w-8 h-8 rounded-full" />
-              <div className="text-sm">
-                <p className="font-medium text-gray-800">{user.name}</p>
-                <p className="text-gray-500 text-xs">Year {user.year} · {user.branch}</p>
-              </div>
-            </div>
-          </div>
-        </nav>
+        <Navbar title="My Posts" />
 
         <div className="p-6 max-w-3xl mx-auto w-full">
           <div className="flex justify-between items-center mb-4">
@@ -94,7 +85,7 @@ export default function MyPostsPage() {
             ))}
           </div>
 
-          {isLoading ? (
+          {isLoading || isLoadingConnections ? (
             <p className="text-gray-500 text-sm">Loading...</p>
           ) : myPosts?.length === 0 ? (
             <p className="text-gray-500 text-sm">{filter === 'all' ? "You haven't created any posts yet." : `No ${filter} posts found.`}</p>
@@ -119,9 +110,12 @@ export default function MyPostsPage() {
                     </div>
                     {(() => {
                       const postConnections = connections?.filter(item => item.postId === post.id) || []
-                      const isCompleted = postConnections.some(item => item.session?.status.toLowerCase() === 'completed')
-                      const didNotHappen = postConnections.some(item => item.session?.status.toLowerCase() === 'did_not_happen')
-                      const isConnected = postConnections.some(item => item.status === 'accepted')
+                      const isCompleted = postConnections.some(item => item.session?.status?.toLowerCase() === 'completed')
+                      const didNotHappen = postConnections.some(item => item.session?.status?.toLowerCase() === 'did_not_happen')
+                      const isConnected = postConnections.some(item =>
+                        item.status === 'accepted' &&
+                        item.session?.status?.toLowerCase() !== 'did_not_happen'
+                      )
                       const hasPendingRequest = postConnections.some(item => item.status === 'pending')
 
                       if (isCompleted) {
@@ -164,36 +158,17 @@ export default function MyPostsPage() {
         />
       )}
       {pendingDeletePost && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl">
-            <div className="flex justify-between items-center mb-3">
-              <h2 className="text-lg font-bold text-gray-800">Delete post?</h2>
-              <button onClick={() => setPendingDeletePost(null)} aria-label="Close confirmation">
-                <X size={20} className="text-gray-500 hover:text-gray-800" />
-              </button>
-            </div>
-            <p className="text-sm text-gray-600 mb-5">
-              Are you sure you want to delete <span className="font-semibold">{pendingDeletePost.subject}</span>?
-            </p>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setPendingDeletePost(null)}
-                className="flex-1 py-2 rounded-lg border border-gray-300 text-sm text-gray-600 hover:bg-gray-50"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => {
-                  remove(pendingDeletePost.id)
-                  setPendingDeletePost(null)
-                }}
-                className="flex-1 py-2 rounded-lg bg-red-600 text-white text-sm font-medium hover:bg-red-700"
-              >
-                Delete post
-              </button>
-            </div>
-          </div>
-        </div>
+        <ConfirmModal
+          title="Delete post?"
+          message={`Are you sure you want to delete ${pendingDeletePost.subject}?`}
+          confirmLabel="Delete post"
+          confirmClassName="bg-red-600 hover:bg-red-700"
+          onClose={() => setPendingDeletePost(null)}
+          onConfirm={() => {
+            remove(pendingDeletePost.id)
+            setPendingDeletePost(null)
+          }}
+        />
       )}
     </div>
   )

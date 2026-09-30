@@ -4,6 +4,7 @@ import { getPosts } from '../api/posts'
 import { getMyConnections } from '../api/connections'
 import type { Post } from '../types'
 import Sidebar from '../components/Sidebar'
+import Navbar from '../components/Navbar'
 import { Bell, BookOpen, CalendarDays, Clock3, GraduationCap } from 'lucide-react'
 import StatsBar from '../components/StatsBar'
 import CreatePostModal from '../components/CreatePostModal'
@@ -45,30 +46,7 @@ export default function FeedPage() {
       <Sidebar />
 
       <div className="flex-1 flex flex-col">
-        {/* Top Navbar */}
-        <nav className="bg-white border-b border-gray-200 px-6 py-3 flex justify-between items-center sticky top-0 z-10">
-          <input
-            type="text"
-            placeholder="Search for topics, concepts, skills or keywords..."
-            className="w-96 px-4 py-2 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600"
-          />
-          <div className="flex items-center gap-4">
-            <button className="relative">
-              <Bell size={20} className="text-gray-600" />
-            </button>
-            <div className="flex items-center gap-2">
-              <img
-                src={`https://api.dicebear.com/7.x/initials/svg?seed=${user.name}`}
-                alt={user.name}
-                className="w-8 h-8 rounded-full"
-              />
-              <div className="text-sm">
-                <p className="font-medium text-gray-800">{user.name}</p>
-                <p className="text-gray-500 text-xs">Year {user.year} . {user.branch}</p>
-              </div>
-            </div>
-          </div>
-        </nav>
+        <Navbar showSearch />
 
         {/* Main Content */}
         <div className="flex gap-6 p-6 max-w-7xl mx-auto w-full h-[calc(100vh-57px)] overflow-hidden">

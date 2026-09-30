@@ -40,15 +40,42 @@ export const getPosts = async (type?: string) => {
 };
 
 export const deletePost = async (id: string, userId: string) => {
-  const connections = await prisma.connection.count({
-    where: { postId: id },
+  const post = await prisma.post.findFirst({
+    where: { id, userId },
+    select: { id: true },
   });
 
-  if (connections > 0) {
-    throw new Error('Cannot delete a post that has active connections');
+  if (!post) {
+    throw new Error('Post not found');
   }
 
-  return await prisma.post.delete({
-    where: { id, userId },
+  const connections = await prisma.connection.findMany({
+    where: { postId: id },
+    select: {
+      id: true,
+      status: true,
+      session: { select: { status: true } },
+    },
+  });
+
+  const hasActiveConnection = connections.some(connection =>
+    connection.status === 'pending' ||
+    (connection.status === 'accepted' && connection.session?.status !== 'did_not_happen')
+  );
+
+  if (hasActiveConnection) {
+    throw new Error('Cannot delete a post with pending or active connections');
+  }
+
+  const connectionIds = connections.map(connection => connection.id);
+
+  return await prisma.$transaction(async transaction => {
+    if (connectionIds.length > 0) {
+      await transaction.review.deleteMany({ where: { connectionId: { in: connectionIds } } });
+      await transaction.session.deleteMany({ where: { connectionId: { in: connectionIds } } });
+      await transaction.connection.deleteMany({ where: { id: { in: connectionIds } } });
+    }
+
+    return transaction.post.delete({ where: { id: post.id } });
   });
 };
