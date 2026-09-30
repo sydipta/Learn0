@@ -24,6 +24,12 @@ export default function Sidebar() {
     const incomingRequestCount = connections?.filter(connection =>
         connection.receiverId === user.id && connection.status === 'pending'
     ).length || 0
+    const activeConnectionCount = connections?.filter(connection => {
+        const sessionStatus = connection.session?.status?.toLowerCase()
+        return connection.status === 'accepted' &&
+            sessionStatus !== 'completed' &&
+            sessionStatus !== 'did_not_happen'
+    }).length || 0
 
     const handleLogout = () => {
         localStorage.removeItem('token')
@@ -56,6 +62,11 @@ export default function Sidebar() {
                     {label === 'Requests' && incomingRequestCount > 0 && (
                         <span className="min-w-5 h-5 px-1.5 rounded-full bg-red-500 text-white text-[11px] font-semibold flex items-center justify-center">
                             {incomingRequestCount > 99 ? '99+' : incomingRequestCount}
+                        </span>
+                    )}
+                    {label === 'Connections' && activeConnectionCount > 0 && (
+                        <span className="min-w-5 h-5 px-1.5 rounded-full bg-blue-600 text-white text-[11px] font-semibold flex items-center justify-center">
+                            {activeConnectionCount > 99 ? '99+' : activeConnectionCount}
                         </span>
                     )}
                 </NavLink>

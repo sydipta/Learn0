@@ -3,8 +3,8 @@ import api from './client';
 export interface Stats {
     totalStudents: number;
     activePosts: number;
+    completedSessions: number;
     connectionsMade: number;
-    yourRating: number;
 }
 
 export const getStats = async () => {
