@@ -19,6 +19,13 @@ export const getPosts = async (type?: string) => {
   return await prisma.post.findMany({
     where: {
       status: 'active',
+      connections: {
+        none: {
+          session: {
+            status: 'completed',
+          },
+        },
+      },
       ...(type && { type }),
     },
     include: {

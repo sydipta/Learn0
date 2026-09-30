@@ -7,7 +7,7 @@ import Navbar from '../components/Navbar'
 import ConfirmModal from '../components/ConfirmModal'
 import { useState } from 'react'
 import ScheduleSessionModal from '../components/ScheduleSessionModal'
-
+import ReviewModal from '../components/ReviewModal'
 
 export default function ConnectionsPage() {
   const user = JSON.parse(localStorage.getItem('user') || '{}')
@@ -30,11 +30,15 @@ export default function ConnectionsPage() {
   const { mutate: changeSessionStatus, isPending: isUpdatingSession } = useMutation({
     mutationFn: ({ sessionId, status }: { sessionId: string; status: 'completed' | 'did_not_happen' }) =>
       updateSessionStatus(sessionId, status),
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['connections'] })
       queryClient.invalidateQueries({ queryKey: ['sessions'] })
       queryClient.invalidateQueries({ queryKey: ['posts'] })
       setPendingAction(null)
+      if (variables.status === 'completed') {
+        const connection = accepted?.find(c => c.session?.id === variables.sessionId)
+        if (connection) setReviewConnection(connection)
+      }
     },
   })
   const { mutate: removeConnection, isPending: isDeletingConnection } = useMutation({
@@ -46,6 +50,7 @@ export default function ConnectionsPage() {
       setPendingAction(null)
     },
   })
+  const [reviewConnection, setReviewConnection] = useState<Connection | null>(null)
   return (
     <div className="flex min-h-screen bg-gray-50">
       <Sidebar />
@@ -167,6 +172,12 @@ export default function ConnectionsPage() {
               changeSessionStatus({ sessionId: pendingAction.sessionId, status: pendingAction.status })
             }
           }}
+        />
+      )}
+      {reviewConnection && (
+        <ReviewModal
+          connection={reviewConnection}
+          onClose={() => setReviewConnection(null)}
         />
       )}
     </div>
