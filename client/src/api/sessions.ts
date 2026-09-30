@@ -6,9 +6,9 @@ export interface Session {
   scheduledAt: string;
   status: string;
   connection: {
-    requester: { id: string; name: string; avatarUrl: string };
-    receiver: { id: string; name: string; avatarUrl: string };
-    post: { id: string; subject: string };
+    requester: { id: string; name: string; email: string; avatarUrl: string };
+    receiver: { id: string; name: string; email: string; avatarUrl: string };
+    post: { id: string; subject: string; type: 'learning_request' | 'teaching_offer' };
   };
 }
 

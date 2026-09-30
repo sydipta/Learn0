@@ -10,6 +10,7 @@ import { Bell, BookOpen, CalendarDays, Clock3, GraduationCap } from 'lucide-reac
 import StatsBar from '../components/StatsBar'
 import CreatePostModal from '../components/CreatePostModal'
 import ConnectConfirmModal from '../components/ConnectConfirmModal'
+import ConfirmModal from '../components/ConfirmModal'
 import { getUpcomingSessions } from '../api/sessions'
 import type { Session } from '../api/sessions'
 
@@ -23,6 +24,7 @@ export default function FeedPage() {
 
   //Connection Confirm Modal State
   const [selectedPost, setSelectedPost] = useState<Post | null>(null)
+  const [selectedSession, setSelectedSession] = useState<Session | null>(null)
 
   const { data: posts, isLoading } = useQuery({
     queryKey: ['posts', filter],
@@ -227,6 +229,12 @@ export default function FeedPage() {
                               <Clock3 size={12} />
                               {new Date(s.scheduledAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
                             </p>
+                            <button
+                              onClick={() => setSelectedSession(s)}
+                              className="mt-2 text-xs font-medium text-blue-700 hover:text-blue-900"
+                            >
+                              View details
+                            </button>
                           </div>
                         </div>
                       )
@@ -252,6 +260,28 @@ export default function FeedPage() {
           onClose={() => setSelectedPost(null)}
         />
       )}
+      {selectedSession && (() => {
+        const other = selectedSession.connection.requester.id === user.id
+          ? selectedSession.connection.receiver
+          : selectedSession.connection.requester
+        const scheduledAt = new Date(selectedSession.scheduledAt).toLocaleString('en-IN', {
+          dateStyle: 'full',
+          timeStyle: 'short',
+        })
+        const sessionPurpose = selectedSession.connection.post.type === 'teaching_offer'
+          ? `You will teach ${other.name}`
+          : `${other.name} will teach you`
+
+        return (
+          <ConfirmModal
+            title="Upcoming session details"
+            message={`Date & time: ${scheduledAt}\nWith: ${other.name}\nEmail: ${other.email}\nTopic: ${selectedSession.connection.post.subject}\n${sessionPurpose}`}
+            confirmLabel="Close"
+            onClose={() => setSelectedSession(null)}
+            onConfirm={() => setSelectedSession(null)}
+          />
+        )
+      })()}
     </div>
   )
 }

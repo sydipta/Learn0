@@ -38,10 +38,10 @@ export default function RequestsPage() {
         const acceptedConnection = refreshedConnections.find(connection => connection.id === variables.id)
         const email = acceptedConnection?.requester.email
         setAcceptedMessage(email
-          ? `You are now connected. Their email is ${email}. You can contact them to discuss the meeting and negotiate the details.`
-          : 'You are now connected. You can find their contact details in your Connections page.')
+          ? `Connection: Accepted\nContact email: ${email}\nNext step: Connect over email to discuss the session, then schedule it from the Connections page.`
+          : 'Connection: Accepted\nContact email: Available in the Connections page\nNext step: Connect over email and schedule the session from the Connections page.')
       } catch {
-        setAcceptedMessage('You are now connected. You can find their contact details in your Connections page.')
+        setAcceptedMessage('Connection: Accepted\nContact email: Available in the Connections page\nNext step: Connect over email and schedule the session from the Connections page.')
       }
     },
   })

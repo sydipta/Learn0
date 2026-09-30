@@ -1,8 +1,9 @@
 import { X } from 'lucide-react'
+import type { ReactNode } from 'react'
 
 interface Props {
   title: string
-  message: string
+  message: ReactNode
   confirmLabel?: string
   cancelLabel?: string
   confirmClassName?: string
@@ -30,7 +31,7 @@ export default function ConfirmModal({
             <X size={20} className="text-gray-500 hover:text-gray-800" />
           </button>
         </div>
-        <p className="text-sm text-gray-600 mb-5">{message}</p>
+        <p className="text-sm text-gray-600 mb-5 whitespace-pre-line">{message}</p>
         <div className="flex gap-3">
           <button
             onClick={onClose}

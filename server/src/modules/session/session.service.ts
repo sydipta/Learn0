@@ -41,9 +41,9 @@ export const getUpcomingSessions = async (userId: string) => {
     include: {
       connection: {
         include: {
-          requester: { select: { id: true, name: true, avatarUrl: true } },
-          receiver: { select: { id: true, name: true, avatarUrl: true } },
-          post: { select: { id: true, subject: true } },
+          requester: { select: { id: true, name: true, email: true, avatarUrl: true } },
+          receiver: { select: { id: true, name: true, email: true, avatarUrl: true } },
+          post: { select: { id: true, subject: true, type: true } },
         },
       },
     },

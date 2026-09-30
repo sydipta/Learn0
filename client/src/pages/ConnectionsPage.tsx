@@ -9,9 +9,12 @@ import { useState } from 'react'
 import ScheduleSessionModal from '../components/ScheduleSessionModal'
 import ReviewModal from '../components/ReviewModal'
 
+type ConnectionFilter = 'all' | 'unscheduled' | 'scheduled' | 'completed' | 'did_not_happen'
+
 export default function ConnectionsPage() {
   const user = JSON.parse(localStorage.getItem('user') || '{}')
   const queryClient = useQueryClient()
+  const [filter, setFilter] = useState<ConnectionFilter>('all')
 
   const { data: connections, isLoading } = useQuery({
     queryKey: ['connections'],
@@ -19,6 +22,15 @@ export default function ConnectionsPage() {
   })
 
   const accepted = connections?.filter(c => c.status === 'accepted')
+  const filteredAccepted = accepted?.filter(connection => {
+    const status = connection.session?.status?.toLowerCase()
+
+    if (filter === 'unscheduled') return !connection.session
+    if (filter === 'scheduled') return status === 'upcoming'
+    if (filter === 'completed') return status === 'completed'
+    if (filter === 'did_not_happen') return status === 'did_not_happen'
+    return true
+  })
   const [selectedConnection, setSelectedConnection] = useState<Connection | null>(null)
   const [pendingAction, setPendingAction] = useState<{
     action: 'status' | 'delete'
@@ -65,8 +77,33 @@ export default function ConnectionsPage() {
           ) : accepted?.length === 0 ? (
             <p className="text-gray-500 text-sm">No accepted connections yet.</p>
           ) : (
-            <div className="space-y-3">
-              {accepted?.map((c: Connection) => {
+            <>
+              <div className="flex flex-wrap gap-2 mb-5">
+                {([
+                  ['all', 'All'],
+                  ['unscheduled', 'Unscheduled'],
+                  ['scheduled', 'Scheduled'],
+                  ['completed', 'Completed'],
+                  ['did_not_happen', 'Did not happen'],
+                ] as const).map(([value, label]) => (
+                  <button
+                    key={value}
+                    onClick={() => setFilter(value)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-medium ${filter === value
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-white border border-gray-300 text-gray-600 hover:bg-gray-50'
+                      }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+
+              {filteredAccepted?.length === 0 ? (
+                <p className="text-gray-500 text-sm">No connections found for this filter.</p>
+              ) : (
+                <div className="space-y-3">
+                  {filteredAccepted?.map((c: Connection) => {
                 const other = c.requesterId === user.id ? c.receiver : c.requester
                 return (
                   <div key={c.id} className="bg-white rounded-xl border border-gray-200 p-4 flex justify-between items-start gap-4">
@@ -146,8 +183,10 @@ export default function ConnectionsPage() {
                     </div>
                   </div>
                 )
-              })}
-            </div>
+                  })}
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
