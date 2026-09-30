@@ -38,7 +38,6 @@ export default function FeedPage() {
     queryKey: ['sessions'],
     queryFn: getUpcomingSessions,
   })
-  console.log('sessions', sessions)
 
   const user = JSON.parse(localStorage.getItem('user') || '{}')
 
@@ -210,8 +209,7 @@ export default function FeedPage() {
                 ) : (
                   <div className="space-y-3">
                     {sessions.map((s: Session) => {
-                      const user_id = user.id
-                      const other = s.connection.requester.id === user_id ? s.connection.receiver : s.connection.requester
+                      const other = s.connection.requester.id === user.id ? s.connection.receiver : s.connection.requester
                       return (
                         <div key={s.id} className="flex items-start gap-3 rounded-lg border border-blue-100 bg-blue-50/60 p-3">
                           <img

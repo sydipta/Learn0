@@ -5,9 +5,10 @@ interface Props {
   isOwnProfile: boolean
 }
 
-function maskEmail(email: string) {
-  const [, domain] = email.split('@')
-  return `xxxx@${domain || 'iitism.ac.in'}`
+const maskEmail = (email: string | undefined) => {
+  if (!email) return null;
+  const [local, domain] = email.split('@');
+  return `${local[0]}***@${domain}`;
 }
 
 export default function ProfileHeader({ user, isOwnProfile }: Props) {
@@ -28,7 +29,11 @@ export default function ProfileHeader({ user, isOwnProfile }: Props) {
           )}
         </div>
         <p className="text-sm text-gray-600 mt-1">{user.program} · {user.branch} · Year {user.year}</p>
-        <p className="text-sm text-gray-500 mt-3">Email: {isOwnProfile ? user.email : maskEmail(user.email)}</p>
+        {isOwnProfile ? (
+          <p className="text-sm text-gray-500 mt-3">Email: {user.email}</p>
+        ) : user.email ? (
+          <p className="text-sm text-gray-500 mt-3">Email: {maskEmail(user.email)}</p>
+        ) : null}
         <p className="text-xs text-gray-400 mt-1">
           {isOwnProfile ? 'This is the email connected to your account.' : 'Email is shared only after a connection is accepted.'}
         </p>

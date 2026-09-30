@@ -18,17 +18,18 @@ export const getProfile = async (req: AuthRequest, res: Response) => {
 };
 
 export const getPublicProfile = async (req: AuthRequest, res: Response) => {
-    try {
-        const profile = await getUserProfile(req.params.userId as string);
-        if(!profile) {
-            res.status(404).json({ message: 'User not found' });
-            return;
-        }
-
-        res.status(200).json(profile);
-    } catch (error) {
-        res.status(500).json({ message: 'Something went wrong' });
+  try {
+    const profile = await getUserProfile(req.params.userId as string);
+    if (!profile) {
+      res.status(404).json({ message: 'User not found' });
+      return;
     }
+
+    const { email: _, ...publicUser } = profile.user;
+    res.status(200).json({ ...profile, user: publicUser });
+  } catch (error) {
+    res.status(500).json({ message: 'Something went wrong' });
+  }
 };
 
 export const updateProfile = async (req: AuthRequest, res: Response) => {
