@@ -1,8 +1,8 @@
 import api from './client';
 import type { Post } from '../types';
 
-export const getPosts = async (type?: string) => {
-    const response = await api.get<Post[]>('/posts', { params: { type } });
+export const getPosts = async (type?: string, includeCompleted = false) => {
+    const response = await api.get<Post[]>('/posts', { params: { type, includeCompleted } });
     return response.data;
 }
 

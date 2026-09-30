@@ -20,8 +20,8 @@ export default function MyPostsPage() {
   const [pendingDeletePost, setPendingDeletePost] = useState<Post | null>(null)
 
   const { data: allPosts, isLoading } = useQuery({
-    queryKey: ['posts'],
-    queryFn: () => getPosts(),
+    queryKey: ['posts', 'mine'],
+    queryFn: () => getPosts(undefined, true),
   })
 
   const { data: connections, isLoading: isLoadingConnections } = useQuery({
@@ -34,11 +34,12 @@ export default function MyPostsPage() {
     .filter((post: Post) => {
       const postConnections = connections?.filter(item => item.postId === post.id) || []
       const hasCompletedSession = postConnections.some(item => item.session?.status?.toLowerCase() === 'completed')
-      const hasConnectedSession = postConnections.some(item =>
-        item.status === 'accepted' &&
-        item.session?.status?.toLowerCase() !== 'completed' &&
-        item.session?.status?.toLowerCase() !== 'did_not_happen'
-      )
+      const hasConnectedSession = postConnections.some(item => {
+        const sessionStatus = item.session?.status?.toLowerCase()
+        return item.status.toLowerCase() === 'accepted' &&
+          sessionStatus !== 'completed' &&
+          sessionStatus !== 'did_not_happen'
+      })
 
       if (filter === 'completed') return hasCompletedSession
       if (filter === 'connected') return hasConnectedSession

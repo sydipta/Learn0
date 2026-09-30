@@ -15,17 +15,19 @@ export const createPost = async (userId: string, data: {
   });
 };
 
-export const getPosts = async (type?: string) => {
+export const getPosts = async (type?: string, includeCompleted = false) => {
   return await prisma.post.findMany({
     where: {
       status: 'active',
-      connections: {
-        none: {
-          session: {
-            status: 'completed',
+      ...(!includeCompleted && {
+        connections: {
+          none: {
+            session: {
+              status: 'completed',
+            },
           },
         },
-      },
+      }),
       ...(type && { type }),
     },
     include: {

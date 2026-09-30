@@ -27,7 +27,7 @@ export default function RequestsPage() {
   })
 
   const incoming = connections?.filter(c => c.receiverId === user.id && c.status === 'pending')
-  const outgoing = connections?.filter(c => c.requesterId === user.id)
+  const outgoing = connections?.filter(c => c.requesterId === user.id && c.status !== 'accepted')
 
   return (
     <div className="flex min-h-screen bg-gray-50">
@@ -89,11 +89,10 @@ export default function RequestsPage() {
                       <p className="text-xs text-gray-500 mt-1">Post: <span className="font-medium">{c.post.subject}</span></p>
                     </div>
                   </div>
-                  <span className={`text-xs px-2 py-1 rounded-full font-medium ${
-                    c.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
-                    c.status === 'accepted' ? 'bg-green-100 text-green-700' :
-                    'bg-red-100 text-red-600'
-                  }`}>
+                  <span className={`text-xs px-2 py-1 rounded-full font-medium ${c.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
+                      c.status === 'accepted' ? 'bg-green-100 text-green-700' :
+                        'bg-red-100 text-red-600'
+                    }`}>
                     {c.status.charAt(0).toUpperCase() + c.status.slice(1)}
                   </span>
                 </div>
