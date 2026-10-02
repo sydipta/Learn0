@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import Navbar from '../components/Navbar'
 import Sidebar from '../components/Sidebar'
+import ResetPassword from '../components/ResetPassword'
 import { getMyProfile, updateMyProfile } from '../api/users'
 
 export default function SettingsPage() {
@@ -141,6 +142,9 @@ export default function SettingsPage() {
                 </button>
               </form>
             )}
+          </div>
+          <div className="mt-6">
+            <ResetPassword />
           </div>
         </main>
       </div>

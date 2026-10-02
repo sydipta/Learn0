@@ -14,6 +14,7 @@ model User {
   isVerified Boolean @default(false)
   name String
   password String
+  passwordVersion Int @default(0)
   program String
   branch String
   year Int
@@ -63,6 +64,8 @@ model Connection {
 
   reviews Review[]
 
+  @@unique([requesterId, postId])
+
   session Session?
 }
 
@@ -78,6 +81,8 @@ model Review {
   connection Connection @relation(fields: [connectionId], references: [id])
   reviewer User @relation("ReviewsGiven", fields: [reviewerId], references: [id])
   reviewee User @relation("ReviewsReceived", fields: [revieweeId], references: [id])
+
+  @@unique([connectionId, reviewerId])
 }
 
 model Session {

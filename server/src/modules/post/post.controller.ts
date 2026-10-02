@@ -23,7 +23,8 @@ export const getPostHandler = async (req: AuthRequest, res: Response) => {
   try {
     const type = req.query.type as string | undefined;
     const includeCompleted = req.query.includeCompleted === 'true';
-    const posts = await getPosts(type, includeCompleted);
+    const search = req.query.search as string | undefined;
+    const posts = await getPosts(type, includeCompleted, search);
     res.status(200).json(posts);
   } catch (error) {
     res.status(500).json({ message: 'Something went wrong' });

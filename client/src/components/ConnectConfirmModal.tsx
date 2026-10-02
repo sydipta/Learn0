@@ -13,7 +13,6 @@ export default function ConnectConfirmModal({ post, onClose }: Props) {
   const { mutate, isPending, isError } = useMutation({
     mutationFn: () => createConnection({
       postId: post.id,
-      receiverId: post.userId,
     }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['connections'] })

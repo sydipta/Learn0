@@ -53,6 +53,9 @@ export default function LoginPage() {
                         {loading? 'Logging in...' : 'Login'}
                     </button>
                 </form>
+                <p className="mt-4 text-center">
+                    <Link to="/forgot-password" className="text-purple-600 font-medium hover:underline">Forgot password?</Link>
+                </p>
                 <p className="mt-4 text-center text-gray-600">
                     Don't have an account? <Link to="/signup" className="text-purple-600 font-medium hover:underline">Sign up</Link>
                 </p>

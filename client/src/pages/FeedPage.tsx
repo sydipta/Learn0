@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { getPosts } from '../api/posts'
@@ -17,6 +17,13 @@ import type { Session } from '../api/sessions'
 
 export default function FeedPage() {
   const [filter, setFilter] = useState<'all' | 'learning_request' | 'teaching_offer'>('all')
+  const [search, setSearch] = useState('')
+  const [debouncedSearch, setDebouncedSearch] = useState('')
+
+  useEffect(() => {
+    const timeout = window.setTimeout(() => setDebouncedSearch(search.trim()), 500)
+    return () => window.clearTimeout(timeout)
+  }, [search])
 
   //Create Post Modal State
   const [showCreatePost, setShowCreatePost] = useState(false)
@@ -27,8 +34,8 @@ export default function FeedPage() {
   const [selectedSession, setSelectedSession] = useState<Session | null>(null)
 
   const { data: posts, isLoading } = useQuery({
-    queryKey: ['posts', filter],
-    queryFn: () => getPosts(filter === 'all' ? undefined : filter),
+    queryKey: ['posts', filter, debouncedSearch],
+    queryFn: () => getPosts(filter === 'all' ? undefined : filter, false, debouncedSearch || undefined),
   })
 
   const { data: connections } = useQuery({
@@ -48,7 +55,7 @@ export default function FeedPage() {
       <Sidebar />
 
       <div className="flex-1 flex flex-col">
-        <Navbar showSearch />
+        <Navbar showSearch searchValue={search} onSearchChange={setSearch} />
 
         {/* Main Content */}
         <div className="flex gap-6 p-6 max-w-7xl mx-auto w-full h-[calc(100vh-57px)] overflow-hidden">
@@ -94,7 +101,7 @@ export default function FeedPage() {
               {isLoading ? (
                 <p className="text-center text-gray-500">Loading...</p>
               ) : posts?.length === 0 ? (
-                <p className="text-center text-gray-500">No posts yet.</p>
+                <p className="text-center text-gray-500">{debouncedSearch ? 'No matching posts found.' : 'No posts yet.'}</p>
               ) : (
                 <div className="space-y-4">
                   {posts?.map((post: Post) => (

@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 import prisma from '../../db/prisma';
 
 export const createPost = async (userId: string, data: {
@@ -15,10 +16,29 @@ export const createPost = async (userId: string, data: {
   });
 };
 
-export const getPosts = async (type?: string, includeCompleted = false) => {
+export const getPosts = async (type?: string, includeCompleted = false, search?: string) => {
+  const normalizedSearch = search?.trim();
+  let matchingPostIds: string[] | undefined;
+
+  if (normalizedSearch) {
+    const matchingPosts = await prisma.$queryRaw<{ id: string }[]>(Prisma.sql`
+      SELECT "id"
+      FROM "Post"
+      WHERE "subject" ILIKE ${`%${normalizedSearch}%`}
+         OR "description" ILIKE ${`%${normalizedSearch}%`}
+         OR EXISTS (
+           SELECT 1
+           FROM unnest("tags") AS tag
+           WHERE tag ILIKE ${`%${normalizedSearch}%`}
+         )
+    `);
+    matchingPostIds = matchingPosts.map(post => post.id);
+  }
+
   return await prisma.post.findMany({
     where: {
       status: 'active',
+      ...(matchingPostIds && { id: { in: matchingPostIds } }),
       ...(!includeCompleted && {
         connections: {
           none: {

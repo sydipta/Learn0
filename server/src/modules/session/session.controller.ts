@@ -12,7 +12,7 @@ export const createSessionHandler = async (req: AuthRequest, res: Response) => {
       return;
     }
 
-    const session = await createSession(parsed.data);
+    const session = await createSession(req.userId!, parsed.data);
     res.status(201).json(session);
   } catch (error: any) {
     res.status(400).json({ message: error.message });

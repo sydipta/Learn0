@@ -3,7 +3,6 @@ import type { Connection } from '../types';
 
 export const createConnection = async (data: {
     postId: string;
-    receiverId: string;
 }) => {
     const response = await api.post<Connection>('/connections', data);
     return response.data;

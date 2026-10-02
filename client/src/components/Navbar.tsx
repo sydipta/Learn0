@@ -4,9 +4,11 @@ import { Link } from 'react-router-dom'
 interface Props {
   title?: string
   showSearch?: boolean
+  searchValue?: string
+  onSearchChange?: (value: string) => void
 }
 
-export default function Navbar({ title, showSearch = false }: Props) {
+export default function Navbar({ title, showSearch = false, searchValue = '', onSearchChange }: Props) {
   const user = JSON.parse(localStorage.getItem('user') || '{}')
 
   return (
@@ -16,6 +18,8 @@ export default function Navbar({ title, showSearch = false }: Props) {
           <input
             type="text"
             placeholder="Search for topics, concepts, skills or keywords..."
+            value={searchValue}
+            onChange={event => onSearchChange?.(event.target.value)}
             className="w-full max-w-3xl px-4 py-2 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600"
           />
         </div>

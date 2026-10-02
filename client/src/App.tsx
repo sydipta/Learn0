@@ -8,6 +8,7 @@ import MyPostsPage from './pages/MyPostsPage'
 import ProfilePage from './pages/ProfilePage'
 import NotificationsPage from './pages/NotificationsPage'
 import SettingsPage from './pages/SettingsPage'
+import ForgotPasswordPage from './pages/ForgotPasswordPage'
 
 function App() {
   const token = localStorage.getItem('token')
@@ -16,6 +17,7 @@ function App() {
     <Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignupPage />} />
+      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/feed" element={token ? <FeedPage /> : <Navigate to="/login" />} />
       <Route path="/requests" element={token ? <RequestsPage /> : <Navigate to="/login" />} />
       <Route path="/connections" element={token ? <ConnectionsPage /> : <Navigate to="/login" />} />

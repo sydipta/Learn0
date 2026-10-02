@@ -1,13 +1,20 @@
 import prisma from '../../db/prisma';
 import { createNotificationIfMissing } from '../notification/notification.service';
 
-export const createSession = async (data: {
+export const createSession = async (userId: string, data: {
   connectionId: string;
   scheduledAt: string;
 }) => {
   // Only allow session if connection is accepted
-  const connection = await prisma.connection.findUnique({
-    where: { id: data.connectionId },
+  const connection = await prisma.connection.findFirst({
+    where: {
+      id: data.connectionId,
+      status: 'accepted',
+      OR: [
+        { requesterId: userId },
+        { receiverId: userId },
+      ],
+    },
     include: {
       requester: { select: { id: true, name: true } },
       receiver: { select: { id: true, name: true } },
@@ -15,7 +22,7 @@ export const createSession = async (data: {
     },
   });
 
-  if (!connection || connection.status !== 'accepted') {
+  if (!connection) {
     throw new Error('Connection must be accepted before scheduling a session');
   }
 

@@ -11,14 +11,38 @@ export const createUser = async (data: {
     avatarUrl?: string;
 }) => {
     const hashedPassword = await bcrypt.hash(data.password, 10);
+    const avatarUrl = data.avatarUrl || 'https://api.dicebear.com/7.x/initials/svg?seed=' + data.name;
+    const existingUser = await prisma.user.findUnique({
+        where: { email: data.email },
+    });
 
-    const user = await prisma.user.create({ 
-        data: {
-            ...data,
-            password: hashedPassword,
-            avatarUrl: data.avatarUrl || 'https://api.dicebear.com/7.x/initials/svg?seed=' + data.name,
-        }
-     });
+    if (existingUser?.isVerified) {
+        const error = new Error('An account with this email already exists') as Error & { statusCode: number };
+        error.statusCode = 409;
+        throw error;
+    }
+
+    const user = existingUser
+        ? await prisma.user.update({
+            where: { id: existingUser.id },
+            data: {
+                email: data.email,
+                name: data.name,
+                password: hashedPassword,
+                program: data.program,
+                branch: data.branch,
+                year: data.year,
+                avatarUrl,
+                isVerified: false,
+            },
+        })
+        : await prisma.user.create({
+            data: {
+                ...data,
+                password: hashedPassword,
+                avatarUrl,
+            },
+        });
     return user;
 }
 

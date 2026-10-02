@@ -3,9 +3,17 @@ import { createNotificationIfMissing } from '../notification/notification.servic
 
 export const createConnection = async (requesterId: string, data: {
   postId: string;
-  receiverId: string;
 }) => {
-  if (requesterId === data.receiverId) {
+  const post = await prisma.post.findUnique({
+    where: { id: data.postId },
+    select: { userId: true, status: true, subject: true },
+  });
+
+  if (!post || post.status !== 'active') {
+    throw new Error('Post is not available for connection requests');
+  }
+
+  if (requesterId === post.userId) {
     throw new Error('You cannot connect with yourself');
   }
 
@@ -23,18 +31,19 @@ export const createConnection = async (requesterId: string, data: {
   const connection = await prisma.connection.create({
     data: {
       requesterId,
-      ...data,
+      postId: data.postId,
+      receiverId: post.userId,
     },
   });
 
-  const [requester, post] = await Promise.all([
-    prisma.user.findUnique({ where: { id: requesterId }, select: { name: true } }),
-    prisma.post.findUnique({ where: { id: data.postId }, select: { subject: true } }),
-  ]);
-
-  if (requester && post) {
+  const requester = await prisma.user.findUnique({
+    where: { id: requesterId },
+    select: { name: true },
+  });
+  
+  if (requester) {
     await createNotificationIfMissing({
-      userId: data.receiverId,
+      userId: post.userId,
       type: 'connection_request',
       message: `${requester.name} sent you a connection request for ${post.subject}.`,
     });

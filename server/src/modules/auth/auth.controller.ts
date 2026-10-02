@@ -18,8 +18,15 @@ export const signup = async (req: Request, res: Response) => {
     const { password: _, ...userWithoutPassword } = user;
     res.status(201).json({ message: 'User created', user: userWithoutPassword });
   }
-  catch (error) {
-    res.status(500).json({ error: "Something went wrong" });
+  catch (error: any) {
+    if (error.code === 'P2002') {
+      res.status(409).json({ message: 'An account with this email already exists' });
+      return;
+    }
+
+    res.status(error.statusCode || 500).json({
+      message: error.statusCode ? error.message : 'Something went wrong',
+    });
     }
 };
 
@@ -35,7 +42,7 @@ export const login = async (req: Request, res: Response) => {
     const user = await loginUser(parsed.data.email, parsed.data.password);
 
     const token = jwt.sign(
-      { userId: user.id },
+      { userId: user.id, tokenVersion: user.passwordVersion },
       process.env.JWT_SECRET as string,
       { expiresIn: '7d' }
     );

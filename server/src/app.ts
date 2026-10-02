@@ -8,6 +8,7 @@ import reviewRouter from './modules/review/review.router';
 import statsRouter from './modules/stats/stats.router';
 import sessionRouter from './modules/session/session.router';
 import notificationRouter from './modules/notification/notification.router';
+import resetPasswordRouter from './modules/auth/reset-password.router';
 
 const app = express();
 
@@ -20,6 +21,7 @@ app.get('/health', (req, res) => {
 });
 
 app.use('/api/auth', authRouter);
+app.use('/api/reset-password', resetPasswordRouter);
 app.use('/api/users', userRouter);
 app.use('/api/posts', postRouter);
 app.use('/api/connections', connectionRouter);
