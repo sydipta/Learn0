@@ -7,6 +7,7 @@ import ConnectionsPage from './pages/ConnectionsPage'
 import MyPostsPage from './pages/MyPostsPage'
 import ProfilePage from './pages/ProfilePage'
 import NotificationsPage from './pages/NotificationsPage'
+import SettingsPage from './pages/SettingsPage'
 
 function App() {
   const token = localStorage.getItem('token')
@@ -22,6 +23,7 @@ function App() {
       <Route path="/profile" element={token ? <ProfilePage /> : <Navigate to="/login" />} />
       <Route path="/profile/:userId" element={token ? <ProfilePage /> : <Navigate to="/login" />} />
       <Route path="/notifications" element={token ? <NotificationsPage /> : <Navigate to="/login" />} />
+      <Route path="/settings" element={token ? <SettingsPage /> : <Navigate to="/login" />} />
 
       <Route path="*" element={<Navigate to={token ? "/feed" : "/login"} />} />
 

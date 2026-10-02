@@ -12,11 +12,9 @@ export const getProfileById = async (userId: string) => {
 }
 
 export const updateMyProfile = async (data: Partial<{
-    name: string;
     program: string;
     branch: string;
     year: number;
-    avatarUrl: string;
 }>) => {
     const response = await api.patch<User>('/users/me', data);
     return response.data;
