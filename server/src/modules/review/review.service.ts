@@ -15,6 +15,14 @@ export const createReview = async (reviewerId: string, data:{
         throw new Error('Connection must be accepted before leaving a review');
     }
 
+    const session = await prisma.session.findUnique({
+        where: { connectionId: data.connectionId },
+    });
+
+    if (!session || session.status !== 'completed') {
+        throw new Error('Session must be completed before leaving a review');
+    }
+
     return await prisma.review.create({
         data: {
             ...data,

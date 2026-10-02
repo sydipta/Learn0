@@ -1,7 +1,8 @@
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import { createUser, loginUser } from './auth.service';
-import {signupSchema, loginSchema} from './auth.schema';
+import { signupSchema, loginSchema, sendOtpSchema, verifyOtpSchema } from './auth.schema';
+import { sendOtp, verifyOtp } from './otp.service';
 
 export const signup = async (req: Request, res: Response) => {
   try {
@@ -42,5 +43,35 @@ export const login = async (req: Request, res: Response) => {
     res.status(200).json({token, user: userWithoutPassword});
   } catch (error: any) { 
     res.status(401).json({ message: error.message});
+  }
+};
+
+export const sendOtpHandler = async (req: Request, res: Response) => {
+  try {
+    const parsed = sendOtpSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ message: 'Invalid input', errors: parsed.error.issues });
+      return;
+    }
+
+    await sendOtp(parsed.data.email);
+    res.status(200).json({ message: 'Verification code sent' });
+  } catch (error: any) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+export const verifyOtpHandler = async (req: Request, res: Response) => {
+  try {
+    const parsed = verifyOtpSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ message: 'Invalid input', errors: parsed.error.issues });
+      return;
+    }
+
+    await verifyOtp(parsed.data.email, parsed.data.code);
+    res.status(200).json({ message: 'Email verified' });
+  } catch (error: any) {
+    res.status(400).json({ message: error.message });
   }
 };

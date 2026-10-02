@@ -23,9 +23,14 @@ export default function Navbar({ title, showSearch = false }: Props) {
         <h1 className="flex-1 min-w-0 text-lg font-semibold text-gray-800">{title}</h1>
       )}
       <div className="flex items-center gap-3 sm:gap-4 shrink-0">
-        <button className="relative rounded-lg p-2 hover:bg-gray-100 transition-colors" aria-label="Notifications">
+        <Link
+          to="/notifications"
+          className="relative rounded-lg p-2 hover:bg-gray-100 transition-colors"
+          aria-label="Notifications"
+          title="View notifications"
+        >
           <Bell size={20} className="text-gray-600" />
-        </button>
+        </Link>
         <Link
           to="/profile"
           title="Open your profile"
