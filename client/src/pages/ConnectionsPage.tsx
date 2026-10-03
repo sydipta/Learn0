@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { Link } from 'react-router-dom'
 import { deleteConnection, getMyConnections } from '../api/connections'
 import { updateSessionStatus } from '../api/sessions'
 import type { Connection } from '../types'
@@ -109,9 +110,24 @@ export default function ConnectionsPage() {
                 return (
                   <div key={c.id} className="bg-white rounded-xl border border-gray-200 p-4 flex justify-between items-start gap-4">
                     <div className="flex items-center gap-3">
-                      <img src={`https://api.dicebear.com/7.x/initials/svg?seed=${other.name}`} className="w-10 h-10 rounded-full" />
+                      <Link
+                        to={`/profile/${other.id}`}
+                        title={`View ${other.name}'s profile`}
+                        className="rounded-full focus:outline-none focus:ring-2 focus:ring-blue-600"
+                      >
+                        <img
+                          src={`https://api.dicebear.com/7.x/initials/svg?seed=${other.name}`}
+                          alt={`View ${other.name}'s profile`}
+                          className="w-10 h-10 rounded-full"
+                        />
+                      </Link>
                       <div>
-                        <p className="font-medium text-gray-800 text-sm">{other.name}</p>
+                        <Link
+                          to={`/profile/${other.id}`}
+                          className="font-medium text-gray-800 text-sm hover:text-blue-600"
+                        >
+                          {other.name}
+                        </Link>
                         {other.email && <p className="text-xs text-gray-500">{other.email}</p>}
                         <p className="text-xs text-gray-500">{other.program} · {other.branch} · Year {other.year}</p>
                         <p className="text-xs text-gray-500 mt-1">Topic: <span className="font-medium">{c.post.subject}</span></p>
