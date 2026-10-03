@@ -72,6 +72,9 @@ export default function RequestsPage() {
                       <p className="font-medium text-gray-800 text-sm">{c.requester.name}</p>
                       <p className="text-xs text-gray-500">{c.requester.program} · {c.requester.branch} · Year {c.requester.year}</p>
                       <p className="text-xs text-gray-500 mt-1">Post: <span className="font-medium">{c.post.subject}</span></p>
+                      <span className={`inline-block mt-2 text-xs px-2 py-1 rounded-full font-medium ${c.post.type === 'learning_request' ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>
+                        {c.post.type === 'learning_request' ? 'Can Teach' : 'Want to Learn'}
+                      </span>
                     </div>
                   </Link>
                   <div className="flex gap-2">
@@ -113,6 +116,9 @@ export default function RequestsPage() {
                       <p className="font-medium text-gray-800 text-sm">{c.receiver.name}</p>
                       <p className="text-xs text-gray-500">{c.receiver.program} · {c.receiver.branch} · Year {c.receiver.year}</p>
                       <p className="text-xs text-gray-500 mt-1">Post: <span className="font-medium">{c.post.subject}</span></p>
+                      <span className={`inline-block mt-2 text-xs px-2 py-1 rounded-full font-medium ${c.post.type === 'learning_request' ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>
+                        {c.post.type === 'learning_request' ? 'Can Teach' : 'Want to Learn'}
+                      </span>
                     </div>
                   </Link>
                   <span className={`text-xs px-2 py-1 rounded-full font-medium ${c.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :

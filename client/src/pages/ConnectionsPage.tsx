@@ -131,6 +131,9 @@ export default function ConnectionsPage() {
                         {other.email && <p className="text-xs text-gray-500">{other.email}</p>}
                         <p className="text-xs text-gray-500">{other.program} · {other.branch} · Year {other.year}</p>
                         <p className="text-xs text-gray-500 mt-1">Topic: <span className="font-medium">{c.post.subject}</span></p>
+                        <span className={`inline-block mt-2 text-xs px-2 py-1 rounded-full font-medium ${c.post.type === 'learning_request' ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>
+                          {c.post.type === 'learning_request' ? 'Can Teach' : 'Want to Learn'}
+                        </span>
                       </div>
                     </div>
                     <div className="flex flex-wrap justify-end gap-2 items-center max-w-xs">
